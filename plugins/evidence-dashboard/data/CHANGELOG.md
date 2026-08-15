@@ -10,6 +10,12 @@ All notable changes to the DSH plugin suite.
   end-to-end with `dsh plugin add ./dsh-prior-probe-1.5.0.tgz` +
   `--dump-config` in a scratch profile. Install from GitHub, tarball, or npm.
   The session-scoped dynamic variant (`plugin.host.js`) stays available.
+- **evidence-dashboard**: now an official **bundle + web client package** —
+  host half serves the archive over an exact `/api/dash-data` route; the
+  browser half ships as a pre-built `dsh.client` bundle
+  (`exports["./client"]` → `lib/client.js`, `window.__ModuleLoader__` factory
+  format) registering a **Settings → DSH Evidence** section. Verified with a
+  tarball install + `--dump-config` and a simulated browser factory load.
 - repo now carries the `dsh-plugin` / `deepseek-harness` topics for ecosystem
   discoverability.
 

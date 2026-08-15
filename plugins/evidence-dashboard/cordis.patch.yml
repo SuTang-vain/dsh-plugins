@@ -1,0 +1,4 @@
+# The layer applied when a profile lists this bundle.
+- insert:
+    - id: evidence-dashboard
+      name: dsh-evidence-dashboard

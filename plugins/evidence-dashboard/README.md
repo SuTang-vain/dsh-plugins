@@ -23,29 +23,50 @@ DSH 插件套件的归档仪表盘。Host 半部分通过包私有 RPC 提供数
 
 ## Install / 安装
 
-The package has both halves: `plugin.host.js` → `code.host` and
-`plugin.client.js` → `code.client` of one `cordis_define` call.
+### Official bundle install (recommended) / 官方组合包安装（推荐）
 
-1. **Data directory.** The host probes `DATA_DIR_CANDIDATES` in order (first
-   existing directory wins) and reports the resolved path through the
-   `catalog` dataset. Edit the candidate list at the top of `plugin.host.js`
-   if your copy of `data/` lives elsewhere.
-2. Define and run. The client half registers two additive UI seats:
-   - inside the latest `cordis_run` card (run the plugin → the dashboard
-     renders right in the conversation flow), and
-   - a persistent **Settings → DSH Evidence** section.
-3. Activating a client half requires one approval in the UI.
+One package carries both halves: `package.json` declares `dsh.bundle` (host
+layer in `cordis.patch.yml`, entry `index.js` serving the data API at
+`/api/dash-data`) and `dsh.client` (`exports["./client"]` → the pre-built
+`lib/client.js` bundle). Install into a profile with any of the three
+official channels:
 
-此包有两半：`plugin.host.js` → `code.host`，`plugin.client.js` → `code.client`，
-放进同一次 `cordis_define` 调用。
+一个包携带两半：`package.json` 声明 `dsh.bundle`（host 层在
+`cordis.patch.yml`，入口 `index.js` 在 `/api/dash-data` 提供数据 API）与
+`dsh.client`（`exports["./client"]` → 预构建的 `lib/client.js`）。三种官方
+渠道任选其一安装进 profile：
 
-1. **数据目录。** Host 按 `DATA_DIR_CANDIDATES` 顺序探测（先命中者胜出），并
-   通过 `catalog` 数据集报告实际路径；若你的 `data/` 在别处，编辑
-   `plugin.host.js` 顶部的候选列表。
-2. 定义并运行。Client 半部分注册两个增量 UI 座位：
-   - 最新的 `cordis_run` 卡片内（运行插件 → 仪表盘直接出现在对话流里）；
-   - 常驻的 **设置 → DSH Evidence** 入口。
-3. 激活 client 半部分需要在 UI 中审批一次。
+```sh
+# 1. from GitHub (the client bundle is pre-built; no build step needed)
+dsh plugin --profile demo add github:SuTang-vain/dsh-plugins#path:plugins/evidence-dashboard
+
+# 2. from a packed tarball
+dsh plugin --profile demo add ./dsh-evidence-dashboard-1.5.0.tgz
+
+# 3. from npm (once published)
+dsh plugin --profile demo add dsh-evidence-dashboard
+```
+
+Then start a web profile that lists this bundle and open
+**Settings → DSH Evidence**:
+
+启动列出此 bundle 的 web profile，然后打开 **设置 → DSH Evidence**：
+
+```sh
+dsh --profile demo --dump-config   # shows the "# == dsh-evidence-dashboard" layer
+dsh web --profile demo             # the dashboard registers its settings section
+```
+
+### Dynamic variant / 动态插件变体
+
+`plugin.host.js` + `plugin.client.js` are the same dashboard as **dynamic**
+plugin bodies (session-scoped, two UI seats including the run card). Paste
+them into `code.host` / `code.client` of one `cordis_define` call, then
+`cordis_run`. Prefer the bundle for anything persistent.
+
+`plugin.host.js` + `plugin.client.js` 是同一仪表盘的**动态**插件函数体（会话级，
+含运行卡片在内的两个 UI 座位）。把它们粘贴进同一次 `cordis_define` 的
+`code.host` / `code.client`，然后 `cordis_run`。需要持久安装请用上面的 bundle。
 
 All data crosses the wire as lossless JSON; nothing live is read — the host
 only parses the files listed above.

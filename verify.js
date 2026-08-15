@@ -33,19 +33,28 @@ for (const rel of sources) {
   }
 }
 
-// ESM bundle entry: syntax-check with node --check (respects the package's type)
-{
-  const check = spawnSync(process.execPath, ['--check', path.join(root, 'plugins/prior-probe/index.js')], { encoding: 'utf8' })
-  ok(check.status === 0, 'bundle entry syntax: plugins/prior-probe/index.js' + (check.status === 0 ? '' : ' -> ' + String(check.stderr).trim().split('\n')[0]))
+// ESM bundle entries: syntax-check with node --check (respects the package's type)
+for (const rel of ['plugins/prior-probe/index.js', 'plugins/evidence-dashboard/index.js', 'plugins/evidence-dashboard/lib/client.js']) {
+  const check = spawnSync(process.execPath, ['--check', path.join(root, rel)], { encoding: 'utf8' })
+  ok(check.status === 0, 'bundle entry syntax: ' + rel + (check.status === 0 ? '' : ' -> ' + String(check.stderr).trim().split('\n')[0]))
 }
 
-// Bundle manifest
+// Bundle manifests
+for (const dir of ['plugins/prior-probe', 'plugins/evidence-dashboard']) {
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, dir, 'package.json'), 'utf8'))
+  ok(pkg.dsh && pkg.dsh.bundle && typeof pkg.dsh.bundle.patch === 'string', dir + ': package.json declares dsh.bundle.patch')
+  ok(fs.existsSync(path.join(root, dir, pkg.dsh.bundle.patch)), dir + ': bundle patch file exists: ' + pkg.dsh.bundle.patch)
+  const patch = fs.readFileSync(path.join(root, dir, pkg.dsh.bundle.patch), 'utf8')
+  ok(patch.includes(pkg.name), dir + ': bundle patch layer references the package')
+}
+
+// evidence-dashboard client declaration + built bundle shape
 {
-  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'plugins/prior-probe/package.json'), 'utf8'))
-  ok(pkg.dsh && pkg.dsh.bundle && typeof pkg.dsh.bundle.patch === 'string', 'bundle package.json declares dsh.bundle.patch')
-  ok(fs.existsSync(path.join(root, 'plugins/prior-probe', pkg.dsh.bundle.patch)), 'bundle patch file exists: ' + pkg.dsh.bundle.patch)
-  const patch = fs.readFileSync(path.join(root, 'plugins/prior-probe', pkg.dsh.bundle.patch), 'utf8')
-  ok(patch.includes('dsh-prior-probe'), 'bundle patch layer references the package')
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'plugins/evidence-dashboard/package.json'), 'utf8'))
+  ok(pkg.dsh && pkg.dsh.client && pkg.dsh.client.platform === 'web', 'dashboard: package.json declares dsh.client with platform web')
+  ok(pkg.exports && pkg.exports['./client'] && typeof pkg.exports['./client'] === 'string' && fs.existsSync(path.join(root, 'plugins/evidence-dashboard', pkg.exports['./client'])), 'dashboard: exports["./client"] points to an existing bundle')
+  const clientSrc = fs.readFileSync(path.join(root, 'plugins/evidence-dashboard/lib/client.js'), 'utf8')
+  ok(clientSrc.includes('window.__ModuleLoader__.load({') && clientSrc.includes('id: "dsh-evidence-dashboard"'), 'dashboard: client bundle uses the __ModuleLoader__ factory format')
 }
 
 const dataFiles = [
