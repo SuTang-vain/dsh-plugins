@@ -2,6 +2,17 @@
 
 All notable changes to the DSH plugin suite.
 
+## v1.5 (2026-08-16)
+
+- **prior-probe**: now an official DSH **bundle** — `package.json` declares
+  `dsh.bundle`, `cordis.patch.yml` carries the layer, and `index.js` is the
+  ESM entry registering tools through `ctx.tools` / `defineTool`. Verified
+  end-to-end with `dsh plugin add ./dsh-prior-probe-1.5.0.tgz` +
+  `--dump-config` in a scratch profile. Install from GitHub, tarball, or npm.
+  The session-scoped dynamic variant (`plugin.host.js`) stays available.
+- repo now carries the `dsh-plugin` / `deepseek-harness` topics for ecosystem
+  discoverability.
+
 ## v1.4 (2026-08-15)
 
 - **evidence-dashboard visual upgrade (git-tree)**: graph lines use the
