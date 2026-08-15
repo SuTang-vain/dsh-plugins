@@ -1,0 +1,51 @@
+{
+  "schema_version": "rejected-options-v1",
+  "frozen_at": "2026-08-15",
+  "entries": [
+    {
+      "id": "rej-001-single-scroll-page",
+      "target": "evidence-dashboard",
+      "path": "layout",
+      "intended_effect": "render every dataset on one long page",
+      "observed_benefit": [
+        "no tab switching at all"
+      ],
+      "observed_harm": [
+        "large payloads slow first paint",
+        "no way to see dataset sizes at a glance"
+      ],
+      "suspected_conflict": "perceived simplicity vs. lazy loading and badge visibility",
+      "lineage_decision": "rejected"
+    },
+    {
+      "id": "rej-002-embedded-everything",
+      "target": "evidence-dashboard",
+      "path": "data-layer",
+      "intended_effect": "embed all datasets inside plugin source",
+      "observed_benefit": [
+        "single-file plugin"
+      ],
+      "observed_harm": [
+        "data cannot be reviewed or diffed",
+        "plugin updates are needed for data-only changes"
+      ],
+      "suspected_conflict": "portability vs. auditability of the data archive",
+      "lineage_decision": "rejected"
+    },
+    {
+      "id": "rej-003-canvas-renderer",
+      "target": "evidence-dashboard",
+      "path": "versions-view",
+      "intended_effect": "render the version tree on a canvas with pan and zoom",
+      "observed_benefit": [
+        "smooth interaction for very large graphs"
+      ],
+      "observed_harm": [
+        "extra dependency and canvas lifecycle code",
+        "theme tokens would need manual color mapping"
+      ],
+      "suspected_conflict": "rendering power vs. bundle size and theme fidelity",
+      "lineage_decision": "rejected"
+    }
+  ]
+}

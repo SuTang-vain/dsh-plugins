@@ -1,0 +1,21 @@
+{
+  "schema_version": "prior-guessability-probes-v1",
+  "frozen_at": "2026-08-14",
+  "target": "typescript-mcp-server-generator",
+  "source": "github/awesome-copilot @ 336af71f (sha e409edb7 verified)",
+  "screening_purpose": "pre-pilot gate per PRIOR_DISTANCE_MEASUREMENT_V1: predict whether the target's load-bearing content can discriminate",
+  "probes": [
+    {"id": "tsmcp-server-package", "prompt": "Which npm package provides the MCP TypeScript server implementation in the MCP TypeScript SDK v2?",
+     "pattern": "@modelcontextprotocol/server", "flags": "", "expected_direction": "low"},
+    {"id": "tsmcp-stdio-class", "prompt": "Which class provides the stdio transport for an MCP TypeScript SDK v2 server?",
+     "pattern": "StdioServerTransport", "flags": "", "expected_direction": "low"},
+    {"id": "tsmcp-http-class", "prompt": "Which class provides the Streamable HTTP transport for a plain Node server in MCP TypeScript SDK v2?",
+     "pattern": "NodeStreamableHTTPServerTransport", "flags": "", "expected_direction": "low"},
+    {"id": "tsmcp-register-api", "prompt": "How do you register a tool on an McpServer instance in the MCP TypeScript SDK v2?",
+     "pattern": "registerTool", "flags": "", "expected_direction": "low"},
+    {"id": "tsmcp-zod-major", "prompt": "Which zod major version does the MCP TypeScript SDK v2 require?",
+     "pattern": "(?<![0-9])4(?![0-9])", "flags": "", "expected_direction": "low"},
+    {"id": "tsmcp-removed-transports", "prompt": "Which transports were removed in the MCP TypeScript SDK v2?",
+     "pattern": "SSE[\\s\\S]{0,60}WebSocket|WebSocket[\\s\\S]{0,60}SSE", "flags": "", "expected_direction": "low"}
+  ]
+}

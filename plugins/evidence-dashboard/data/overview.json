@@ -1,0 +1,40 @@
+{
+  "title": "DSH Plugin Suite",
+  "updated_at": "2026-08-15",
+  "components": [
+    { "id": "prior-probe", "category": "Host tool plugin (3 model tools)", "status": "stable" },
+    { "id": "evidence-dashboard", "category": "Host data + Client UI plugin (4 tabs)", "status": "stable" }
+  ],
+  "highlights": {
+    "title": "v1.4 — git-tree visual upgrade",
+    "points": [
+      "stronger graph lines and larger, ringed nodes",
+      "color-coded kind pills and row hover states",
+      "branch accent bar on each version card"
+    ]
+  },
+  "performance": {
+    "title": "Runtime notes",
+    "points": [
+      "dashboard data is read once per plugin run and cached in memory",
+      "prior_probe_score is fully offline and deterministic (no model calls)",
+      "prior_probe_run is network-bound by the endpoint, one request per probe repeat"
+    ]
+  },
+  "principles": {
+    "title": "Design principles",
+    "points": [
+      "every dataset is a plain JSON file under data/, auditable with verify.js",
+      "UI reads theme tokens so light and dark modes render correctly",
+      "all views guard their data shape — a bad dataset degrades to an empty block, never a crash"
+    ]
+  },
+  "compatibility": {
+    "title": "Compatibility",
+    "points": [
+      "works with any OpenAI-compatible /chat/completions endpoint",
+      "data directory is resolved by probing a candidate path list",
+      "self-check: run `node verify.js` at the repository root"
+    ]
+  }
+}

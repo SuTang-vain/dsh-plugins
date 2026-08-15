@@ -1,0 +1,53 @@
+{
+  "schema_version": "decisions-log-v1",
+  "frozen_at": "2026-08-15",
+  "entries": [
+    {
+      "id": "dec-001-tabbed-layout",
+      "claim_level": "adopted",
+      "source": "design notes: v1.2",
+      "supports": [
+        "one dataset per tab keeps payloads small",
+        "tab count badges make archive sizes visible"
+      ],
+      "does_not_support": [
+        "a single scroll page for every dataset at once"
+      ]
+    },
+    {
+      "id": "dec-002-json-files",
+      "claim_level": "adopted",
+      "source": "design notes: v1.1",
+      "supports": [
+        "datasets are versionable, diffable plain JSON files",
+        "verify.js can byte-check embedded copies against the files"
+      ],
+      "does_not_support": [
+        "embedding all datasets inside the plugin source"
+      ]
+    },
+    {
+      "id": "dec-003-css-git-graph",
+      "claim_level": "adopted",
+      "source": "design notes: v1.3",
+      "supports": [
+        "no canvas or SVG dependency; theme tokens keep it adaptive",
+        "the lane layout algorithm is a pure function and unit-testable"
+      ],
+      "does_not_support": [
+        "a full canvas renderer with pan/zoom"
+      ]
+    },
+    {
+      "id": "dec-004-api-key-file",
+      "claim_level": "adopted",
+      "source": "design notes: v1.1",
+      "supports": [
+        "keeps bearer keys out of the session log"
+      ],
+      "does_not_support": [
+        "a built-in encrypted credential store"
+      ]
+    }
+  ]
+}

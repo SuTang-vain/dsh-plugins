@@ -1,0 +1,31 @@
+{
+  "schema_version": "prior-guessability-probes-v1",
+  "frozen_at": "2026-08-14",
+  "model_phase": "GLM-5.2 via Volcengine Ark plan/v3 (calibration model)",
+  "probes": [
+    {"id": "editing-realm-group", "target": "editing-cordis-compositions", "task": "ec-01",
+     "prompt": "In a DeepSeek Harness agent preset, a plugin row named workflow-worker-thread publishes the workflows service. Show the correct composition structure for this preset so it mounts cleanly.",
+     "pattern": "- id: delegation[\\s\\S]*cordis:group[\\s\\S]*isolate:[\\s\\S]*workflows:\\s*true", "flags": "", "expected_direction": "low"},
+    {"id": "editing-provider-value", "target": "editing-cordis-compositions", "task": "ec-03",
+     "prompt": "In a DeepSeek Harness preset, the row tool-subagent needs a provider config value. What value should the provider field be set to?",
+     "pattern": "spawn", "flags": "", "expected_direction": "low"},
+    {"id": "headless-eval-pin", "target": "headless-preset", "task": "hp-04",
+     "prompt": "In the DeepSeek Harness headless-agent composition, the eval-pin row has a config field called pin. What is its exact value?",
+     "pattern": "eval-pin-7f3a", "flags": "", "expected_direction": "low"},
+    {"id": "headless-models", "target": "headless-preset", "task": "hp-03",
+     "prompt": "Which model ids are registered under llm-deepseek in the DeepSeek Harness headless-agent composition?",
+     "pattern": "deepseek-v4-pro[\\s\\S]*deepseek-v4-flash", "flags": "", "expected_direction": "high"},
+    {"id": "wcag-tier-alt", "target": "wcag-audit-patterns", "task": "wc-01",
+     "prompt": "In a WCAG audit report, classify the finding 'image has no alt text' into one of Critical, Serious, or Moderate.",
+     "pattern": "Critical", "flags": "", "expected_direction": "high"},
+    {"id": "wcag-tier-title", "target": "wcag-audit-patterns", "task": "wc-02",
+     "prompt": "In a WCAG audit report, classify the finding 'page has no title' into one of Critical, Serious, or Moderate.",
+     "pattern": "Serious", "flags": "", "expected_direction": "high"},
+    {"id": "gfw-commit-type", "target": "git-workflow-and-versioning", "task": "gw-01",
+     "prompt": "Write a git commit message for adding a new feature, following the common project convention.",
+     "pattern": "^(feat|fix|refactor|test|docs|chore): ", "flags": "m", "expected_direction": "high"},
+    {"id": "gfw-summary-header", "target": "git-workflow-and-versioning", "task": "gw-01-change-summary",
+     "prompt": "After a code change, you must write the project's structured change summary. Write the second section header of that template verbatim.",
+     "pattern": "THINGS I DIDN'T TOUCH", "flags": "", "expected_direction": "low"}
+  ]
+}
