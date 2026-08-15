@@ -40,13 +40,49 @@ host 的 `web` 服务调用模型；在没有注册 web fetch provider 的 DSH �
 
 ## Install / 安装
 
-`plugin.host.js` is a plain-JavaScript function body. In a DSH session, paste
-the whole file into the `code.host` parameter of a `cordis_define` call (new
-Plugin, any 3–6 letter id prefix), then `cordis_run` the returned packageId.
+### Official bundle install (recommended) / 官方组合包安装（推荐）
 
-`plugin.host.js` 是纯 JavaScript 函数体。在 DSH 会话中把整个文件粘贴进
+The plugin ships as an official DSH **bundle** (`package.json` declares
+`dsh.bundle`; the layer lives in `cordis.patch.yml`; the entry is
+`index.js`). Install it into a profile with any of the three official
+channels:
+
+插件以官方 DSH **组合包**形式发布（`package.json` 声明 `dsh.bundle`，层定义在
+`cordis.patch.yml`，入口为 `index.js`）。三种官方渠道任选其一安装进 profile：
+
+```sh
+# 1. from GitHub (source, plain JS — no build step needed)
+dsh plugin --profile demo add github:SuTang-vain/dsh-plugins#path:plugins/prior-probe
+
+# 2. from a packed tarball (no network)
+dsh plugin --profile demo add ./dsh-prior-probe-1.5.0.tgz
+
+# 3. from npm (once published)
+dsh plugin --profile demo add dsh-prior-probe
+```
+
+Then verify the layer and start:
+
+验证层并启动：
+
+```sh
+dsh --profile demo --dump-config   # shows the "# == dsh-prior-probe" layer
+dsh --profile demo                 # or dsh --profile demo "run a probe battery"
+```
+
+### Dynamic variant / 动态插件变体
+
+`plugin.host.js` is the same instrument as a **dynamic** plugin body. In a
+DSH session, paste the whole file into the `code.host` parameter of a
+`cordis_define` call (new Plugin, any 3–6 letter id prefix), then
+`cordis_run` the returned packageId. Note: dynamic plugins are session-scoped
+and do not survive a process restart — prefer the bundle for anything
+persistent.
+
+`plugin.host.js` 是同一工具的**动态**插件函数体。在 DSH 会话中把整个文件粘贴进
 `cordis_define` 的 `code.host` 参数（新插件，任意 3–6 字母 id 前缀），然后对
-返回的 packageId 执行 `cordis_run`。
+返回的 packageId 执行 `cordis_run`。注意：动态插件是会话级的，进程重启后失效——
+需要持久安装请用上面的 bundle 方式。
 
 There is no client half, no external dependency, and no runtime data read —
 both batteries are embedded, so the plugin works with the `data/` directory

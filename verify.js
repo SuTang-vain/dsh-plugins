@@ -9,6 +9,7 @@
 
 const fs = require('fs')
 const path = require('path')
+const { spawnSync } = require('child_process')
 const root = __dirname
 
 const failures = []
@@ -30,6 +31,21 @@ for (const rel of sources) {
   } catch (error) {
     ok(false, 'source parses: ' + rel + ' -> ' + error.message)
   }
+}
+
+// ESM bundle entry: syntax-check with node --check (respects the package's type)
+{
+  const check = spawnSync(process.execPath, ['--check', path.join(root, 'plugins/prior-probe/index.js')], { encoding: 'utf8' })
+  ok(check.status === 0, 'bundle entry syntax: plugins/prior-probe/index.js' + (check.status === 0 ? '' : ' -> ' + String(check.stderr).trim().split('\n')[0]))
+}
+
+// Bundle manifest
+{
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'plugins/prior-probe/package.json'), 'utf8'))
+  ok(pkg.dsh && pkg.dsh.bundle && typeof pkg.dsh.bundle.patch === 'string', 'bundle package.json declares dsh.bundle.patch')
+  ok(fs.existsSync(path.join(root, 'plugins/prior-probe', pkg.dsh.bundle.patch)), 'bundle patch file exists: ' + pkg.dsh.bundle.patch)
+  const patch = fs.readFileSync(path.join(root, 'plugins/prior-probe', pkg.dsh.bundle.patch), 'utf8')
+  ok(patch.includes('dsh-prior-probe'), 'bundle patch layer references the package')
 }
 
 const dataFiles = [
