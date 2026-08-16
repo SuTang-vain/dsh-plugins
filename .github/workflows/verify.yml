@@ -14,3 +14,5 @@ jobs:
           node-version: 20
       - name: Run package self-check
         run: node verify.js
+      - name: Run dsh-plugin-kit self-test
+        run: node dsh-plugin-kit/test/self-test.cjs

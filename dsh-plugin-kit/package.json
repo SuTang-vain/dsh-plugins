@@ -6,6 +6,9 @@
   "bin": {
     "dsh-plugin-kit": "bin/dsh-plugin-kit.cjs"
   },
+  "scripts": {
+    "test": "node test/self-test.cjs"
+  },
   "files": [
     "bin",
     "lib",

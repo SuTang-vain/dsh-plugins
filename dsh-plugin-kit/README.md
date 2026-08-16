@@ -164,6 +164,34 @@ full-line comments and trailing ` #` comments. Indentation is **2 spaces per
 level** (tabs rejected). Anything fancier (anchors, block scalars, flow
 maps) is rejected with a line number.
 
+## Status & roadmap
+
+Pre-1.0, iterating as an independent ecosystem package. Current shape:
+`verify` (9 builtin checks + extensions), `gen-bundle` (assembly protocol),
+a zero-dependency YAML-subset parser, and a self-test suite
+(`npm test` — parser, walker, generator round-trip, runner end-to-end).
+
+Before 1.0: real-world usage feedback, a conformance note pinning the YAML
+subset (the parser rejects anything outside it loudly, so the subset is
+enforceable today), and possibly a `dsh-plugin-kit init` scaffold for new
+plugin repositories.
+
+## Relationship to upstream `dsh`
+
+The official CLI's `dsh plugin` command forwards its arguments to pnpm (it
+manages profile dependencies and reconciles bundle layers); it exposes no
+verification hook, and `@deepseek-ai/dsh` currently does not accept external
+pull requests. This package therefore ships its own `dsh-plugin-kit` binary
+instead of a `dsh plugin verify` subcommand — the ecosystem route the
+official CONTRIBUTING invites.
+
+If upstream ever adopts a verify command, the port is small and was kept in
+mind: upstream already depends on `js-yaml`, so the config could be parsed
+natively there; the check vocabulary (`parse` / `json` / `count` /
+`graph-parents` / …) and this repository's `dsh-plugin-kit.yml` files would
+map over as-is. The YAML subset spec doubles as the interoperability
+baseline between the two parsers.
+
 ## License
 
 MIT — see the repository `LICENSE`.

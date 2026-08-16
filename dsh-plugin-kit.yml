@@ -124,6 +124,8 @@ verify:
 
   # --- packages pack cleanly (no tarball is written) ---
   - pack-dry-run:
+      dir: dsh-plugin-kit
+  - pack-dry-run:
       dir: plugins/prior-probe
   - pack-dry-run:
       dir: plugins/evidence-dashboard

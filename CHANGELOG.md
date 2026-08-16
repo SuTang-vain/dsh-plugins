@@ -11,6 +11,10 @@ All notable changes to the DSH plugin suite.
   spots, version merge shapes). `dsh-plugin-kit gen-bundle` regenerates the
   official client bundle from fragment templates and a transform table.
   `verify.js` and `tools/gen-bundle.cjs` are now thin wrappers over it.
+- **dsh-plugin-kit iteration**: self-test suite (`npm test` — parser,
+  walker, generator round-trip, runner end-to-end), the kit now pack-checks
+  itself, CI runs the self-test, and the README documents the status/roadmap
+  and the relationship to the upstream `dsh plugin` forwarder.
 
 ## v1.6.2 (2026-08-16)
 

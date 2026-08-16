@@ -8,17 +8,19 @@ const path = require('path')
 const { parse } = require('./yaml.cjs')
 const { checks } = require('./checks.cjs')
 
-async function main(root) {
+async function main(root, reporter) {
+  const out = reporter || function (line) { console.log(line) }
+  const err = function (line) { console.error(line) }
   const configFile = path.join(root, 'dsh-plugin-kit.yml')
   if (!fs.existsSync(configFile)) {
-    console.error('no dsh-plugin-kit.yml found in ' + root)
+    err('no dsh-plugin-kit.yml found in ' + root)
     return false
   }
   let config
   try {
     config = parse(fs.readFileSync(configFile, 'utf8'))
   } catch (error) {
-    console.error('cannot parse ' + configFile + ': ' + error.message)
+    err('cannot parse ' + configFile + ': ' + error.message)
     return false
   }
 
@@ -26,8 +28,8 @@ async function main(root) {
   let total = 0
   const report = function (pass, message) {
     total++
-    if (pass) console.log('PASS  ' + message)
-    else { failures++; console.log('FAIL  ' + message) }
+    if (pass) out('PASS  ' + message)
+    else { failures++; out('FAIL  ' + message) }
   }
 
   const list = config.verify || []
@@ -70,7 +72,7 @@ async function main(root) {
     }
   }
 
-  console.log(failures === 0
+  out(failures === 0
     ? '\nALL CHECKS PASSED (' + total + ')'
     : '\n' + failures + ' CHECKS FAILED (' + total + ' total)')
   return failures === 0
