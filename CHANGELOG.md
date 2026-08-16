@@ -2,7 +2,13 @@
 
 All notable changes to the DSH plugin suite.
 
-## Unreleased
+## v1.7.0 (2026-08-16)
+
+> Milestone note: v1.6.0–v1.6.2 are git-only milestones that were never
+> published to npm; v1.7.0 is the first npm release since 1.5.1 and carries
+> everything from 1.6.x onward. / 里程碑说明：v1.6.0–v1.6.2 是仅存在于 git
+> 的里程碑，从未发布到 npm；v1.7.0 是自 1.5.1 以来的首次 npm 发布，包含
+> 1.6.x 至今的全部改动。
 
 - **dsh-plugin-kit**: a new zero-dependency QA package. `dsh-plugin-kit verify`
   runs the declarative checks in `dsh-plugin-kit.yml` (parse / JSON / counts /
@@ -36,6 +42,7 @@ All notable changes to the DSH plugin suite.
   (`docs/kit-field-test.md`, 14/15 checks across three third-party repos).
   The root READMEs gained an Evidence / 效用证据 section.
 
+- `data/versions.json` extended with the v1.7.0 node (14 nodes, head v1.7.0).
 ## v1.6.2 (2026-08-16)
 
 - **evidence-dashboard horizontal release history**: the Versions tab now

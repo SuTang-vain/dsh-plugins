@@ -66,6 +66,8 @@ function versionMergeShapes(ctx) {
   ctx.ok(v160 && v160.parents.length === 2 && v160.parents[0] === 'v1.6.0-rc' && v160.parents[1] === 'v1.5.1', 'v1.6.0 renders as a merge of the release candidate and the v1.5.1 hotfix')
   const v162 = nodes.find((n) => n.id === 'v1.6.2')
   ctx.ok(v162 && v162.parents.length === 1 && v162.parents[0] === 'v1.6.1', 'v1.6.2 continues linearly from v1.6.1')
+  const v170 = nodes.find((n) => n.id === 'v1.7.0')
+  ctx.ok(v170 && v170.parents.length === 1 && v170.parents[0] === 'v1.6.2', 'v1.7.0 continues linearly from v1.6.2')
 }
 
 module.exports = { batteryByteEqual, versionMergeShapes }

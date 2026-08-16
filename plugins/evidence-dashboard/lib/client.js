@@ -6,7 +6,7 @@ window.__ModuleLoader__.load({
     Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
     let react = require("react");
 
-// dsh-evidence-dashboard — Client half (official web bundle), v1.6.2.
+// dsh-evidence-dashboard — Client half (official web bundle), v1.7.0.
 // Pre-built dsh.client bundle in the window.__ModuleLoader__ factory format.
 // Generated from plugin.client.js (dynamic variant) — keep both in sync.
 const STYLES = [

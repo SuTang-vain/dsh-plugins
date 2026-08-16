@@ -107,12 +107,12 @@ verify:
   - count:
       file: plugins/evidence-dashboard/data/versions.json
       path: [branches, 0, nodes, length]
-      equals: 13
+      equals: 14
       message: version graph has 13 nodes
   - property:
       file: plugins/evidence-dashboard/data/versions.json
       path: [branches, 0, head]
-      equals: v1.6.2
+      equals: v1.7.0
       message: version graph head is v1.6.2
   - graph-parents:
       file: plugins/evidence-dashboard/data/versions.json

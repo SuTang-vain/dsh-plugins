@@ -7,7 +7,7 @@
       "id": "releases",
       "label": "dsh-self-harness-tools · release history",
       "track": "main branch",
-      "head": "v1.6.2",
+      "head": "v1.7.0",
       "nodes": [
         {
           "id": "v1.0.0",
@@ -127,6 +127,15 @@
           "label": "v1.6.2",
           "kind": "release",
           "summary": "Horizontal release-history timeline (SVG) + unified simplified visual language"
+        },
+        {
+          "id": "v1.7.0",
+          "parents": [
+            "v1.6.2"
+          ],
+          "label": "v1.7.0",
+          "kind": "release",
+          "summary": "npm release train: first publish since 1.5.1 — calibration metadata, dsh-plugin-kit, utility evidence"
         }
       ]
     }
