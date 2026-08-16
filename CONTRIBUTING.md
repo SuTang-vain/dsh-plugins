@@ -17,17 +17,24 @@ same code.
 ## Development loop / 开发循环
 
 ```bash
-node verify.js        # parse + JSON + counts + byte-equality + regex spot checks
+node verify.js        # thin wrapper over dsh-plugin-kit verify (no install step)
 ```
 
+- Checks are declared in `dsh-plugin-kit.yml` (structure, counts, manifests,
+  pack dry-runs) plus `dsh-plugin-kit.ext.cjs` (embedded-battery byte
+  equality, grader regex spots, version merge shapes). Add new invariants
+  there — `verify.js` itself needs no code changes.
 - Edit data under `plugins/*/data/` — the dashboard reads them at runtime, and
-  `verify.js` checks the counts and the probe batteries byte-for-byte.
+  the kit checks the counts and the probe batteries byte-for-byte.
 - `dsh-prior-probe` embeds its batteries: after editing the batteries, keep
-  `index.js` (bundle) and `plugin.host.js` (dynamic) in sync — `verify.js`
+  `index.js` (bundle) and `plugin.host.js` (dynamic) in sync — the kit
   byte-checks `plugin.host.js` against `data/`; check `index.js` too.
-- The dashboard client bundle `lib/client.js` is **generated** from the
-  dynamic variant — never hand-edit it. After changing `plugin.client.js`, run
-  `node plugins/evidence-dashboard/tools/gen-bundle.cjs`, then
+- The dashboard client bundle `lib/client.js` is **generated**: the assembly
+  rules live in `plugins/evidence-dashboard/dsh-plugin-kit.yml` and the
+  fragment templates under `plugins/evidence-dashboard/tools/bundle/`. After
+  changing `plugin.client.js`, run
+  `node plugins/evidence-dashboard/tools/gen-bundle.cjs` (or
+  `dsh-plugin-kit gen-bundle plugins/evidence-dashboard`), then
   `node --check plugins/evidence-dashboard/lib/client.js`.
 
 ## Local install test / 本地安装测试

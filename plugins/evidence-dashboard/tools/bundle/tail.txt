@@ -1,0 +1,12 @@
+
+exports.inject = ['slots']
+exports.apply = function (ctx) {
+  var slots = ctx.get('slots')
+  if (slots === undefined) return
+  var renderDashboard = function (ownerProps) {
+    return react.createElement(Dashboard, { close: ownerProps && ownerProps.close })
+  }
+  slots.inject('settings.section', function () {
+    return slots.register({ name: 'settings.section', id: 'dsh-evidence', order: 40, label: 'DSH Evidence' }, renderDashboard)
+  })
+}

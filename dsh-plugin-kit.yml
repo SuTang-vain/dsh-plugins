@@ -1,0 +1,129 @@
+# dsh-plugin-kit verify configuration for dsh-self-harness-tools.
+# Declarative invariants; domain-specific checks (embedded probe batteries,
+# grader regexes, version merge shapes) live in dsh-plugin-kit.ext.cjs.
+
+version: 1
+
+verify:
+  # --- sources parse as Cordis function bodies / ESM entries ---
+  - parse: plugins/prior-probe/plugin.host.js
+    mode: function-body
+  - parse: plugins/evidence-dashboard/plugin.host.js
+    mode: function-body
+  - parse: plugins/evidence-dashboard/plugin.client.js
+    mode: function-body
+  - parse: plugins/prior-probe/index.js
+    mode: node-check
+  - parse: plugins/evidence-dashboard/index.js
+    mode: node-check
+  - parse: plugins/evidence-dashboard/lib/client.js
+    mode: node-check
+
+  # --- bundle manifests ---
+  - property:
+      file: plugins/prior-probe/package.json
+      path: dsh.bundle.patch
+      type: string
+      message: prior-probe: package.json declares dsh.bundle.patch
+  - file-exists: plugins/prior-probe/cordis.patch.yml
+  - contains:
+      file: plugins/prior-probe/cordis.patch.yml
+      text: dsh-prior-probe
+      message: prior-probe: bundle patch layer references the package
+  - property:
+      file: plugins/evidence-dashboard/package.json
+      path: dsh.bundle.patch
+      type: string
+      message: evidence-dashboard: package.json declares dsh.bundle.patch
+  - file-exists: plugins/evidence-dashboard/cordis.patch.yml
+  - contains:
+      file: plugins/evidence-dashboard/cordis.patch.yml
+      text: dsh-evidence-dashboard
+      message: evidence-dashboard: bundle patch layer references the package
+  - property:
+      file: plugins/evidence-dashboard/package.json
+      path: [dsh, client, platform]
+      equals: web
+      message: dashboard: package.json declares dsh.client with platform web
+  - resolves-file:
+      file: plugins/evidence-dashboard/package.json
+      path: [exports, ./client]
+      base: plugins/evidence-dashboard
+      message: dashboard: exports["./client"] points to an existing bundle
+  - contains:
+      file: plugins/evidence-dashboard/lib/client.js
+      text: window.__ModuleLoader__.load({
+  - contains:
+      file: plugins/evidence-dashboard/lib/client.js
+      text: 'id: "dsh-evidence-dashboard"'
+      message: dashboard: client bundle uses the __ModuleLoader__ factory format
+
+  # --- datasets parse as JSON ---
+  - json: plugins/prior-probe/data/prior-guessability-probes-v1.json
+  - json: plugins/prior-probe/data/prior-guessability-probes-ts-mcp-v1.json
+  - json: plugins/evidence-dashboard/data/overview.json
+  - json: plugins/evidence-dashboard/data/evidence-map-v2.json
+  - json: plugins/evidence-dashboard/data/attention-conflict-matrix-v2.json
+  - json: plugins/evidence-dashboard/data/versions.json
+
+  # --- dataset counts ---
+  - count:
+      file: plugins/prior-probe/data/prior-guessability-probes-v1.json
+      path: probes.length
+      equals: 8
+      message: v1 battery has 8 probes
+  - count:
+      file: plugins/prior-probe/data/prior-guessability-probes-ts-mcp-v1.json
+      path: probes.length
+      equals: 6
+      message: ts-mcp battery has 6 probes
+  - count:
+      file: plugins/evidence-dashboard/data/evidence-map-v2.json
+      path: entries.length
+      equals: 4
+      message: decisions log has 4 entries
+  - count:
+      file: plugins/evidence-dashboard/data/attention-conflict-matrix-v2.json
+      path: entries.length
+      equals: 3
+      message: rejected options log has 3 entries
+  - count:
+      file: plugins/evidence-dashboard/data/overview.json
+      path: components.length
+      equals: 2
+      message: overview has 2 components
+  - property:
+      file: plugins/evidence-dashboard/data/versions.json
+      path: schema_version
+      equals: version-graph-v1
+      message: version graph schema is v1
+  - count:
+      file: plugins/evidence-dashboard/data/versions.json
+      path: branches.length
+      equals: 1
+      message: version graph has 1 branch
+  - count:
+      file: plugins/evidence-dashboard/data/versions.json
+      path: [branches, 0, nodes, length]
+      equals: 13
+      message: version graph has 13 nodes
+  - property:
+      file: plugins/evidence-dashboard/data/versions.json
+      path: [branches, 0, head]
+      equals: v1.6.2
+      message: version graph head is v1.6.2
+  - graph-parents:
+      file: plugins/evidence-dashboard/data/versions.json
+      branches: branches
+      node-message: version node well-formed
+      parent-message: version node parent exists
+  - contains:
+      file: plugins/evidence-dashboard/data/CHANGELOG.md
+      text: "## v1.4"
+      message: bundled CHANGELOG snapshot has a v1.4 section
+
+  # --- packages pack cleanly (no tarball is written) ---
+  - pack-dry-run:
+      dir: plugins/prior-probe
+  - pack-dry-run:
+      dir: plugins/evidence-dashboard

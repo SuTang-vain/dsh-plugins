@@ -1,0 +1,25 @@
+{
+  "name": "dsh-plugin-kit",
+  "version": "0.1.0",
+  "description": "Quality-assurance toolkit for DSH plugin bundles: declarative verify runs and template-driven client-bundle generation.",
+  "license": "MIT",
+  "bin": {
+    "dsh-plugin-kit": "bin/dsh-plugin-kit.cjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "cordis",
+    "plugin",
+    "qa",
+    "verify"
+  ]
+}

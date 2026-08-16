@@ -1,0 +1,25 @@
+# dsh-plugin-kit bundle configuration for dsh-evidence-dashboard.
+# Regenerates lib/client.js (the official dsh.client web bundle) from
+# plugin.client.js (the dynamic variant). See dsh-plugin-kit/README.md.
+
+version: 1
+
+bundle:
+  name: dsh-evidence-dashboard
+  id: dsh-evidence-dashboard
+  from: plugin.client.js
+  to: lib/client.js
+  version-source: package.json
+  cut-before: "const STYLES = ["
+  cut-after: "\nreturn {\n  name: 'dsh-evidence-dashboard',\n  apply(ctx) {"
+  inject-after: "].join('\\n')"
+  replace:
+    - [React., react.]
+    - ["host.call('dash_data', { dataset: 'catalog' })", "dashData('catalog')"]
+    - ["host.call('dash_data', { dataset: id })", "dashData(id)"]
+  templates:
+    wrapper-head: tools/bundle/wrapper-head.txt
+    header: tools/bundle/header.txt
+    helpers: tools/bundle/helpers.txt
+    tail: tools/bundle/tail.txt
+    wrapper-tail: tools/bundle/wrapper-tail.txt

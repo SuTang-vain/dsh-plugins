@@ -1,0 +1,14 @@
+
+    function dashData(dataset) {
+      return fetch('/api/dash-data?dataset=' + encodeURIComponent(dataset)).then(function (resp) {
+        if (!resp.ok) throw new Error('HTTP ' + resp.status)
+        return resp.json()
+      })
+    }
+
+    if (typeof document !== 'undefined' && document.head && !document.getElementById('{{id}}-styles')) {
+      var styleEl = document.createElement('style');
+      styleEl.id = '{{id}}-styles';
+      styleEl.textContent = STYLES;
+      document.head.appendChild(styleEl);
+    }

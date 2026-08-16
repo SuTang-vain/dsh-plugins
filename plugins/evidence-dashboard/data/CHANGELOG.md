@@ -2,6 +2,16 @@
 
 All notable changes to the DSH plugin suite.
 
+## Unreleased
+
+- **dsh-plugin-kit**: a new zero-dependency QA package. `dsh-plugin-kit verify`
+  runs the declarative checks in `dsh-plugin-kit.yml` (parse / JSON / counts /
+  manifests / pack dry-runs) plus the repository extensions in
+  `dsh-plugin-kit.ext.cjs` (embedded-battery byte equality, grader regex
+  spots, version merge shapes). `dsh-plugin-kit gen-bundle` regenerates the
+  official client bundle from fragment templates and a transform table.
+  `verify.js` and `tools/gen-bundle.cjs` are now thin wrappers over it.
+
 ## v1.6.2 (2026-08-16)
 
 - **evidence-dashboard horizontal release history**: the Versions tab now

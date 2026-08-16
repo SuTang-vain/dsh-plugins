@@ -46,7 +46,7 @@ DeepSeek Harness 采用 *「一切都是插件」* 的架构。本仓库基于�
     </td>
     <td width="50%" valign="top">
       <h3>可验证设计</h3>
-      <p><code>node verify.js</code> 解析全部源码、校验每个 JSON 数据集、对内嵌电池做字节比对、抽查评分正则——并已接入 CI，每次推送自动执行。</p>
+      <p><code>node verify.js</code>（<a href="dsh-plugin-kit/README.md"><code>dsh-plugin-kit</code></a> 的薄包装）解析全部源码、校验每个 JSON 数据集、对内嵌电池做字节比对、抽查评分正则、并对两个包做打包预检——已接入 CI，每次推送自动执行。</p>
     </td>
   </tr>
 </table>
@@ -73,9 +73,10 @@ dsh web --profile demo             # 打开 设置 → DSH Evidence
 | 安装与使用探针电池工具 | [`plugins/prior-probe/README.md`](plugins/prior-probe/README.md) |
 | 安装与使用归档仪表盘 | [`plugins/evidence-dashboard/README.md`](plugins/evidence-dashboard/README.md) |
 | 仓库自检 | `node verify.js` |
+| 验证、扩展或复用 QA 工具包 | [`dsh-plugin-kit/README.md`](dsh-plugin-kit/README.md) |
 | 发版清单（版本号 → npm 发布） | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | 各版本变更记录 | [`CHANGELOG.md`](CHANGELOG.md) |
-| 在仪表盘中查看版本树 | Versions 页（v1.0 → v1.5.1） |
+| 在仪表盘中查看版本树 | Versions 页（v1.0 → v1.6.2） |
 
 ## 与官方项目的关系
 
@@ -88,6 +89,7 @@ dsh web --profile demo             # 打开 设置 → DSH Evidence
 - 构建任务套件前测量模型先验的工具
 - 带版本树的项目历史归档仪表盘
 - 携带 `dsh.bundle` / `dsh.client` manifest 的 npm 分发
+- `dsh-plugin-kit`：面向 DSH 插件仓库的可复用 QA 工具包
 
 若你想为 Harness 核心本身做贡献，请优先参考官方仓库。
 

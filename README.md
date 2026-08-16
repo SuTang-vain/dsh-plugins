@@ -49,7 +49,7 @@ plugin model, installable with `dsh plugin add` and distributed on npm:
     </td>
     <td width="50%" valign="top">
       <h3>Verifiable by design</h3>
-      <p><code>node verify.js</code> parses every source, validates every JSON dataset, byte-checks embedded batteries against their originals, and spot-checks the grader regexes — wired into CI on every push.</p>
+      <p><code>node verify.js</code> — a thin wrapper over <a href="dsh-plugin-kit/README.md"><code>dsh-plugin-kit</code></a> — parses every source, validates every JSON dataset, byte-checks embedded batteries against their originals, spot-checks the grader regexes, and dry-runs both packages, wired into CI on every push.</p>
     </td>
   </tr>
 </table>
@@ -77,9 +77,10 @@ or from a packed tarball. See each plugin README for details.
 | Install and use the probe-battery tools | [`plugins/prior-probe/README.md`](plugins/prior-probe/README.md) |
 | Install and use the archive dashboard | [`plugins/evidence-dashboard/README.md`](plugins/evidence-dashboard/README.md) |
 | Self-check the repository | `node verify.js` |
+| Verify, extend, or reuse the QA kit | [`dsh-plugin-kit/README.md`](dsh-plugin-kit/README.md) |
 | Release checklist (version bump → npm publish) | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | What changed in each release | [`CHANGELOG.md`](CHANGELOG.md) |
-| See the version tree rendered in the dashboard | Versions tab (v1.0 → v1.5.1) |
+| See the version tree rendered in the dashboard | Versions tab (v1.0 → v1.6.2) |
 
 ## Relationship to the Official Project
 
@@ -93,6 +94,7 @@ and the Web UI. This repository primarily provides:
 - Tooling to measure model priors before building a task suite
 - An archive dashboard with a version tree for project history
 - npm distribution with `dsh.bundle` / `dsh.client` manifests
+- `dsh-plugin-kit`, a reusable QA kit for DSH plugin repositories
 
 If you prefer to contribute to the Harness core itself, refer to the official
 repository first.

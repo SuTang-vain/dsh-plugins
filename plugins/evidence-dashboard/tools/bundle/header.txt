@@ -1,0 +1,3 @@
+// {{name}} — Client half (official web bundle), v{{version}}.
+// Pre-built dsh.client bundle in the window.__ModuleLoader__ factory format.
+// Generated from {{from}} (dynamic variant) — keep both in sync.
