@@ -5,7 +5,7 @@
   "recalibrate_hint": "Batteries freeze the harness instruction set at frozen_at. Re-derive this battery against the current harness/target documentation and refresh frozen_at and stale_after before relying on scores taken after stale_after.",
   "target": "typescript-mcp-server-generator",
   "source": "github/awesome-copilot @ 336af71f (sha e409edb7 verified)",
-  "screening_purpose": "pre-pilot gate per PRIOR_DISTANCE_MEASUREMENT_V1: predict whether the target's load-bearing content can discriminate",
+  "screening_purpose": "pre-pilot gate: predict whether the target's load-bearing content can discriminate between prior knowledge and harness instruction",
   "probes": [
     {"id": "tsmcp-server-package", "prompt": "Which npm package provides the MCP TypeScript server implementation in the MCP TypeScript SDK v2?",
      "pattern": "@modelcontextprotocol/server", "flags": "", "expected_direction": "low"},

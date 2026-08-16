@@ -3,7 +3,7 @@
   "frozen_at": "2026-08-14",
   "stale_after": "2026-11-14",
   "recalibrate_hint": "Batteries freeze the harness instruction set at frozen_at. Re-derive this battery against the current harness/target documentation and refresh frozen_at and stale_after before relying on scores taken after stale_after.",
-  "model_phase": "GLM-5.2 via Volcengine Ark plan/v3 (calibration model)",
+  "model_phase": "calibration-time baseline model (details kept in local records)",
   "probes": [
     {"id": "editing-realm-group", "target": "editing-cordis-compositions", "task": "ec-01",
      "prompt": "In a DeepSeek Harness agent preset, a plugin row named workflow-worker-thread publishes the workflows service. Show the correct composition structure for this preset so it mounts cleanly.",
