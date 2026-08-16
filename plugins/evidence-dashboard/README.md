@@ -38,7 +38,7 @@ official channels:
 
 ```sh
 # 1. from GitHub (the client bundle is pre-built; no build step needed)
-dsh plugin --profile demo add github:SuTang-vain/dsh-plugins#path:plugins/evidence-dashboard
+dsh plugin --profile demo add github:SuTang-vain/dsh-self-harness-tools#path:plugins/evidence-dashboard
 
 # 2. from a packed tarball
 dsh plugin --profile demo add ./dsh-evidence-dashboard-1.5.0.tgz

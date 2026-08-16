@@ -1,5 +1,5 @@
 {
-  "title": "DSH Plugin Suite",
+  "title": "DSH Self-Harness Tools",
   "updated_at": "2026-08-15",
   "components": [
     { "id": "prior-probe", "category": "Host tool plugin (3 model tools)", "status": "stable" },

@@ -435,8 +435,8 @@ window.__ModuleLoader__.load({
 
       return react.createElement('div', { className: 'dsh-wrap' },
         react.createElement('div', { className: 'dsh-header' },
-          react.createElement('div', { className: 'dsh-title' }, 'DSH Plugins — Release Dashboard'),
-          react.createElement('div', { className: 'dsh-sub' }, 'Archive dashboard for the DSH plugin suite: components, design decisions, rejected options, and the version tree.')),
+          react.createElement('div', { className: 'dsh-title' }, 'DSH Self-Harness Tools — Release Dashboard'),
+          react.createElement('div', { className: 'dsh-sub' }, 'Archive dashboard for the DSH self-harness tool suite: components, design decisions, rejected options, and the version tree.')),
         react.createElement('div', { className: 'dsh-tabs' },
           tabs.map(function (t) {
             return react.createElement('button', {

@@ -5,7 +5,7 @@
   "branches": [
     {
       "id": "releases",
-      "label": "dsh-plugins · release history",
+      "label": "dsh-self-harness-tools · release history",
       "track": "main branch",
       "head": "v1.4.0",
       "nodes": [

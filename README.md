@@ -1,4 +1,4 @@
-# DSH Plugins
+# DSH Self-Harness Tools
 
 Two self-contained plugin packages for the **DeepSeek Harness** — installable as
 dynamic Cordis plugins.

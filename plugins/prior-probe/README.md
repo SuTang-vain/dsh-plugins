@@ -52,7 +52,7 @@ channels:
 
 ```sh
 # 1. from GitHub (source, plain JS — no build step needed)
-dsh plugin --profile demo add github:SuTang-vain/dsh-plugins#path:plugins/prior-probe
+dsh plugin --profile demo add github:SuTang-vain/dsh-self-harness-tools#path:plugins/prior-probe
 
 # 2. from a packed tarball (no network)
 dsh plugin --profile demo add ./dsh-prior-probe-1.5.0.tgz

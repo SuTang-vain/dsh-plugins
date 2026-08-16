@@ -418,8 +418,8 @@ function Dashboard(props) {
 
   return React.createElement('div', { className: 'dsh-wrap' },
     React.createElement('div', { className: 'dsh-header' },
-      React.createElement('div', { className: 'dsh-title' }, 'DSH Plugins — Release Dashboard'),
-      React.createElement('div', { className: 'dsh-sub' }, 'Archive dashboard for the DSH plugin suite: components, design decisions, rejected options, and the version tree.')),
+      React.createElement('div', { className: 'dsh-title' }, 'DSH Self-Harness Tools — Release Dashboard'),
+      React.createElement('div', { className: 'dsh-sub' }, 'Archive dashboard for the DSH self-harness tool suite: components, design decisions, rejected options, and the version tree.')),
     React.createElement('div', { className: 'dsh-tabs' },
       tabs.map(function (t) {
         return React.createElement('button', {
