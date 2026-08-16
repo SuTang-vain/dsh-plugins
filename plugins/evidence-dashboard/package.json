@@ -1,6 +1,6 @@
 {
   "name": "dsh-evidence-dashboard",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "Archive dashboard for DeepSeek Harness: components, design decisions, rejected options, and a version tree with changelog timeline.",
   "type": "module",
   "main": "index.js",

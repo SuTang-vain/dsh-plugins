@@ -2,6 +2,20 @@
 
 All notable changes to the DSH plugin suite.
 
+## v1.6 (2026-08-16)
+
+- **evidence-dashboard "Release Cockpit"**: KPI stat cards (click to switch
+  tabs), pill navigation, skeleton loading and fade transitions, a header
+  with data-source chip and refresh, an interactive git-tree (click a node
+  for its detail card, collapse branches, kind legend, hover tooltips),
+  filter chips on the Decisions and Rejected options tabs, expandable
+  changelog blocks, and empty states.
+- **visual refresh**: emojis replaced with monochrome inline SVG icons
+  (`currentColor` stroke, no external assets) for a cleaner look.
+- `data/versions.json` extended with the v1.5.0 / v1.5.1 / v1.6.0-rc / v1.6.0
+  nodes (the v1.6 merge renders the fork/merge lanes in the tree);
+  `verify.js` checks the 11-node graph and the v1.6.0 merge shape.
+
 ## v1.5.1 (2026-08-16)
 
 - repository renamed to **dsh-self-harness-tools** (npm package names

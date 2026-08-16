@@ -1,25 +1,39 @@
-// dsh-evidence-dashboard — Client half: renders the frozen evidence archive as
-// an interactive panel. Registered in two additive slots:
+// dsh-evidence-dashboard — Client half (dynamic variant), v1.6 "Release Cockpit".
+// Registered in two additive slots:
 //   tool.view.cordis (key 'self')  — inside this Package's latest run card
 //   settings.section (dsh-evidence) — a full settings page for later browsing
 // All data arrives over Package-private RPC from the Host half.
 //
-// v1.2: "Versions" tab renders the research lineage version history as a
-// git-tree (branches, nodes, status colors) plus the repository changelog
-// timeline below it.
+// v1.6: KPI stat cards, pill navigation, skeleton loading, fade transitions,
+// interactive git-tree (node detail / branch collapse / legend), filter chips,
+// expandable changelog, empty states, and monochrome inline SVG icons.
 
 const STYLES = [
   '.dsh-wrap { font-size: 13px; line-height: 1.5; color: var(--dsw-alias-label-primary, inherit); max-width: 860px; }',
   '.dsh-header { margin-bottom: 10px; }',
+  '.dsh-header-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }',
   '.dsh-title { font-size: 15px; font-weight: 600; margin: 0 0 2px; }',
   '.dsh-sub { color: var(--dsw-alias-label-secondary, inherit); opacity: 0.85; font-size: 12px; }',
+  '.dsh-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }',
+  '.dsh-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; border: 1px solid var(--dsw-alias-border-l1, rgba(128,128,128,0.35)); border-radius: 10px; padding: 1px 8px; color: var(--dsw-alias-label-secondary, inherit); white-space: nowrap; }',
+  '.dsh-icon-btn { display: inline-flex; align-items: center; gap: 4px; background: transparent; border: 1px solid var(--dsw-alias-border-l2, rgba(128,128,128,0.5)); border-radius: 6px; padding: 2px 8px; cursor: pointer; color: inherit; font-size: 12px; }',
+  '.dsh-kpis { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }',
+  '.dsh-kpi { flex: 1; min-width: 96px; border: 1px solid var(--dsw-alias-border-l1, rgba(128,128,128,0.35)); border-radius: 10px; padding: 8px 10px; cursor: pointer; background: transparent; }',
+  '.dsh-kpi:hover { border-color: var(--dsw-alias-border-l2, rgba(128,128,128,0.5)); }',
+  '.dsh-kpi-active { border-color: var(--dsw-alias-brand-primary, #48e); }',
+  '.dsh-kpi-head { display: flex; align-items: center; gap: 6px; }',
+  '.dsh-kpi-num { font-size: 18px; font-weight: 700; }',
+  '.dsh-kpi-label { font-size: 11px; color: var(--dsw-alias-label-secondary, inherit); }',
   '.dsh-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }',
-  '.dsh-tab { background: transparent; border: 1px solid var(--dsw-alias-border-l2, rgba(128,128,128,0.4)); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px; color: inherit; }',
+  '.dsh-tab { display: inline-flex; align-items: center; gap: 5px; background: transparent; border: 1px solid var(--dsw-alias-border-l2, rgba(128,128,128,0.4)); border-radius: 999px; padding: 4px 12px; cursor: pointer; font-size: 12px; color: inherit; }',
   '.dsh-tab-active { border-color: var(--dsw-alias-brand-primary, currentColor); font-weight: 600; }',
   '.dsh-badge { display: inline-block; border: 1px solid var(--dsw-alias-border-l2, rgba(128,128,128,0.5)); border-radius: 10px; padding: 0 7px; font-size: 11px; white-space: nowrap; margin-left: 4px; }',
   '.dsh-stack { display: flex; flex-direction: column; gap: 10px; }',
-  '.dsh-h3 { font-size: 13px; font-weight: 600; margin: 4px 0; }',
+  '.dsh-h3 { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; margin: 4px 0; }',
+  '.dsh-h3 .dsh-icon { color: var(--dsw-alias-label-secondary, inherit); }',
   '.dsh-card { border: 1px solid var(--dsw-alias-border-l1, rgba(128,128,128,0.35)); border-radius: 8px; padding: 8px 10px; }',
+  '.dsh-cols { display: flex; gap: 10px; flex-wrap: wrap; }',
+  '.dsh-col { flex: 1; min-width: 220px; }',
   '.dsh-table { border-collapse: collapse; width: 100%; font-size: 12px; }',
   '.dsh-table th, .dsh-table td { border: 1px solid var(--dsw-alias-border-l1, rgba(128,128,128,0.35)); padding: 4px 7px; text-align: left; vertical-align: top; }',
   '.dsh-table th { color: var(--dsw-alias-label-secondary, inherit); font-weight: 600; }',
@@ -28,12 +42,29 @@ const STYLES = [
   '.dsh-err { color: var(--dsw-alias-state-error-primary, #d05); }',
   '.dsh-retry { margin-left: 8px; background: transparent; border: 1px solid var(--dsw-alias-border-l2, rgba(128,128,128,0.5)); border-radius: 6px; padding: 2px 8px; cursor: pointer; font-size: 12px; color: inherit; }',
   '.dsh-input { background: transparent; border: 1px solid var(--dsw-alias-border-l2, rgba(128,128,128,0.5)); border-radius: 6px; padding: 4px 8px; color: inherit; font-size: 12px; width: 240px; }',
+  '.dsh-fade { animation: dsh-fade-in 0.16s ease; }',
+  '@keyframes dsh-fade-in { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: none; } }',
+  '.dsh-skeleton { border: 1px solid var(--dsw-alias-border-l1, rgba(128,128,128,0.35)); border-radius: 8px; padding: 12px; height: 52px; animation: dsh-pulse 1.2s ease-in-out infinite; }',
+  '@keyframes dsh-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }',
+  '.dsh-empty { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 18px; color: var(--dsw-alias-label-secondary, inherit); border: 1px dashed var(--dsw-alias-border-l1, rgba(128,128,128,0.45)); border-radius: 8px; font-size: 12px; }',
+  '.dsh-chips-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }',
+  '.dsh-chip-btn { background: transparent; border: 1px solid var(--dsw-alias-border-l2, rgba(128,128,128,0.4)); border-radius: 999px; padding: 1px 10px; cursor: pointer; font-size: 11px; color: inherit; }',
+  '.dsh-chip-btn-active { border-color: var(--dsw-alias-brand-primary, #48e); font-weight: 600; }',
+  '.dsh-accent-ok { border-left: 3px solid var(--dsw-alias-state-success-primary, #3a5); }',
+  '.dsh-accent-bad { border-left: 3px solid var(--dsw-alias-state-error-primary, #d05); }',
+  '.dsh-accent-mid { border-left: 3px solid var(--dsw-alias-state-warn-primary, #d90); }',
   // git-tree styles
+  '.dsh-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 11px; color: var(--dsw-alias-label-secondary, inherit); }',
+  '.dsh-legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }',
   '.dsh-gh-branch-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }',
   '.dsh-gh-branch { border-left: 3px solid var(--dsw-alias-brand-primary, #48e); }',
+  '.dsh-gh-branch-btn { display: inline-flex; align-items: center; background: transparent; border: none; color: inherit; cursor: pointer; padding: 0; font-size: 13px; }',
+  '.dsh-chevron { color: var(--dsw-alias-label-secondary, inherit); margin-right: 4px; }',
   '.dsh-gh-list { display: flex; flex-direction: column; }',
   '.dsh-gh-row { display: flex; gap: 10px; align-items: stretch; }',
+  '.dsh-gh-node-row { cursor: pointer; }',
   '.dsh-gh-node-row:hover { background: var(--dsw-alias-bg-layer-1, rgba(128,128,128,0.08)); border-radius: 8px; }',
+  '.dsh-gh-selected { background: var(--dsw-alias-bg-layer-1, rgba(128,128,128,0.1)); border-radius: 8px; }',
   '.dsh-gh-connector { height: 13px; }',
   '.dsh-gh-cells { display: flex; flex: none; }',
   '.dsh-cell { position: relative; width: 16px; }',
@@ -61,64 +92,104 @@ const STYLES = [
   '.dsh-gh-note { font-size: 11px; font-style: italic; color: var(--dsw-alias-label-secondary, inherit); }',
   '.dsh-gh-body { padding-bottom: 10px; }',
   '.dsh-gh-row:last-child .dsh-gh-body { padding-bottom: 0; }',
+  '.dsh-gh-detail { margin: 2px 0 8px 26px; border-left: 3px solid var(--dsw-alias-brand-primary, #48e); padding: 6px 10px; background: var(--dsw-alias-bg-layer-1, rgba(128,128,128,0.06)); border-radius: 8px; }',
   // changelog timeline styles
   '.dsh-ch-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; background: var(--dsw-alias-state-success-primary, #3a5); }',
-  '.dsh-ch-version { font-weight: 600; }',
+  '.dsh-ch-version-btn { display: inline-flex; align-items: center; background: transparent; border: none; color: inherit; cursor: pointer; padding: 0; font-weight: 600; font-size: 13px; }',
   '.dsh-ch-sub { margin-top: 6px; }',
   '.dsh-ch-bullet { margin: 2px 0 2px 14px; }'
 ].join('\n')
 
-const FALLBACK_TABS = [
-  { id: 'overview', label: 'Overview', count: null },
-  { id: 'evidence', label: 'Decisions', count: null },
-  { id: 'conflicts', label: 'Rejected options', count: null },
-  { id: 'versions', label: 'Versions', count: null }
-]
-
-function OverviewView(props) {
-  const d = props.data
-  if (!d) return null
-  const columns = ['Component', 'Category', 'Status']
-  return React.createElement('div', { className: 'dsh-stack' },
-    React.createElement('div', { className: 'dsh-card' },
-      React.createElement('div', { className: 'dsh-sub' }, 'Updated: ' + d.updated_at),
-      React.createElement('div', { className: 'dsh-sub' }, 'Self-check: run `node verify.js` at the repository root')),
-    React.createElement('div', null,
-      React.createElement('h3', { className: 'dsh-h3' }, 'Components'),
-      React.createElement('table', { className: 'dsh-table' },
-        React.createElement('thead', null,
-          React.createElement('tr', null, columns.map(function (c) { return React.createElement('th', { key: c }, c) }))),
-        React.createElement('tbody', null, (d.components || []).map(function (t) {
-          return React.createElement('tr', { key: t.id },
-            React.createElement('td', null, React.createElement('b', null, t.id)),
-            React.createElement('td', null, t.category),
-            React.createElement('td', null, t.status))
-        })))),
-    d.highlights ? React.createElement('div', null,
-      React.createElement('h3', { className: 'dsh-h3' }, 'Release highlights'),
-      React.createElement('div', { className: 'dsh-card' },
-        React.createElement('div', null, React.createElement('b', null, d.highlights.title)),
-        React.createElement('ul', { style: { margin: '4px 0' } },
-          (d.highlights.points || []).map(function (o) { return React.createElement('li', { key: o, className: 'dsh-li' }, o) })))) : null,
-    d.performance ? React.createElement('div', null,
-      React.createElement('h3', { className: 'dsh-h3' }, 'Runtime notes'),
-      React.createElement('div', { className: 'dsh-card' },
-        React.createElement('div', null, React.createElement('b', null, d.performance.title)),
-        React.createElement('ul', { style: { margin: '4px 0' } },
-          (d.performance.points || []).map(function (o) { return React.createElement('li', { key: o, className: 'dsh-li' }, o) })))) : null,
-    d.principles ? React.createElement('div', null,
-      React.createElement('h3', { className: 'dsh-h3' }, 'Design principles'),
-      React.createElement('div', { className: 'dsh-card' },
-        React.createElement('div', null, React.createElement('b', null, d.principles.title)),
-        React.createElement('ul', { style: { margin: '4px 0' } },
-          (d.principles.points || []).map(function (o) { return React.createElement('li', { key: o, className: 'dsh-li' }, o) })))) : null,
-    d.compatibility ? React.createElement('div', null,
-      React.createElement('h3', { className: 'dsh-h3' }, 'Compatibility'),
-      React.createElement('div', { className: 'dsh-card' },
-        React.createElement('div', null, React.createElement('b', null, d.compatibility.title)),
-        React.createElement('ul', { style: { margin: '4px 0' } },
-          (d.compatibility.points || []).map(function (o) { return React.createElement('li', { key: o, className: 'dsh-li' }, o) })))) : null)
+// Monochrome inline SVG icon set (stroke = currentColor, no external assets).
+const ICONS = {
+  grid: [
+    { tag: 'rect', props: { x: '3', y: '3', width: '7', height: '7', rx: '1' } },
+    { tag: 'rect', props: { x: '14', y: '3', width: '7', height: '7', rx: '1' } },
+    { tag: 'rect', props: { x: '3', y: '14', width: '7', height: '7', rx: '1' } },
+    { tag: 'rect', props: { x: '14', y: '14', width: '7', height: '7', rx: '1' } }
+  ],
+  list: [
+    { tag: 'circle', props: { cx: '5', cy: '6', r: '1.2', fill: 'currentColor', stroke: 'none' } },
+    { tag: 'circle', props: { cx: '5', cy: '12', r: '1.2', fill: 'currentColor', stroke: 'none' } },
+    { tag: 'circle', props: { cx: '5', cy: '18', r: '1.2', fill: 'currentColor', stroke: 'none' } },
+    { tag: 'line', props: { x1: '9', y1: '6', x2: '20', y2: '6' } },
+    { tag: 'line', props: { x1: '9', y1: '12', x2: '20', y2: '12' } },
+    { tag: 'line', props: { x1: '9', y1: '18', x2: '20', y2: '18' } }
+  ],
+  ban: [
+    { tag: 'circle', props: { cx: '12', cy: '12', r: '9' } },
+    { tag: 'line', props: { x1: '5.6', y1: '5.6', x2: '18.4', y2: '18.4' } }
+  ],
+  branch: [
+    { tag: 'circle', props: { cx: '6', cy: '6', r: '2.4' } },
+    { tag: 'circle', props: { cx: '6', cy: '18', r: '2.4' } },
+    { tag: 'circle', props: { cx: '18', cy: '12', r: '2.4' } },
+    { tag: 'path', props: { d: 'M6 8.4v7.2' } },
+    { tag: 'path', props: { d: 'M6 12h9.6' } }
+  ],
+  refresh: [
+    { tag: 'path', props: { d: 'M20 12a8 8 0 1 1-2.34-5.66' } },
+    { tag: 'polyline', props: { points: '20 4 20 8 16 8' } }
+  ],
+  search: [
+    { tag: 'circle', props: { cx: '11', cy: '11', r: '7' } },
+    { tag: 'line', props: { x1: '16.5', y1: '16.5', x2: '21', y2: '21' } }
+  ],
+  folder: [
+    { tag: 'path', props: { d: 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' } }
+  ],
+  clock: [
+    { tag: 'circle', props: { cx: '12', cy: '12', r: '9' } },
+    { tag: 'polyline', props: { points: '12 7 12 12 15.5 14' } }
+  ],
+  bolt: [
+    { tag: 'polygon', props: { points: '13 2 4 14 11 14 10 22 20 10 13 10' } }
+  ],
+  compass: [
+    { tag: 'circle', props: { cx: '12', cy: '12', r: '9' } },
+    { tag: 'polygon', props: { points: '15.5 8.5 13.5 13.5 8.5 15.5 10.5 10.5' } }
+  ],
+  link: [
+    { tag: 'path', props: { d: 'M9 15l6-6' } },
+    { tag: 'path', props: { d: 'M11 6l1.3-1.3a4 4 0 0 1 5.7 5.7L16.7 11.7' } },
+    { tag: 'path', props: { d: 'M13 18l-1.3 1.3a4 4 0 0 1-5.7-5.7L7.3 12.3' } }
+  ],
+  sparkle: [
+    { tag: 'path', props: { d: 'M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z' } }
+  ],
+  doc: [
+    { tag: 'path', props: { d: 'M7 2h7l5 5v14H7z' } },
+    { tag: 'path', props: { d: 'M14 2v5h5' } },
+    { tag: 'line', props: { x1: '10', y1: '13', x2: '17', y2: '13' } },
+    { tag: 'line', props: { x1: '10', y1: '17', x2: '17', y2: '17' } }
+  ]
 }
+
+function Icon(props) {
+  const def = ICONS[props.name]
+  if (!def) return null
+  return React.createElement('svg', {
+    className: 'dsh-icon' + (props.className ? ' ' + props.className : ''),
+    width: props.size || 14,
+    height: props.size || 14,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 2,
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    'aria-hidden': true
+  }, def.map(function (el, i) {
+    return React.createElement(el.tag, Object.assign({ key: i }, el.props))
+  }))
+}
+
+const TAB_META = [
+  { id: 'overview', label: 'Overview', icon: 'grid' },
+  { id: 'evidence', label: 'Decisions', icon: 'list' },
+  { id: 'conflicts', label: 'Rejected options', icon: 'ban' },
+  { id: 'versions', label: 'Versions', icon: 'branch' }
+]
 
 function matches(query, fields) {
   if (!query) return true
@@ -126,17 +197,114 @@ function matches(query, fields) {
   return hay.indexOf(query.toLowerCase()) !== -1
 }
 
-function EvidenceView(props) {
+function accentClass(value) {
+  if (value === 'adopted' || value === 'release') return 'dsh-accent-ok'
+  if (value === 'rejected' || value === 'reverted') return 'dsh-accent-bad'
+  return 'dsh-accent-mid'
+}
+
+function StatCards(props) {
+  const datasets = props.datasets
+  if (!datasets) return null
+  return React.createElement('div', { className: 'dsh-kpis' },
+    datasets.map(function (ds) {
+      const meta = TAB_META.find(function (t) { return t.id === ds.id })
+      return React.createElement('div', {
+        key: ds.id,
+        className: 'dsh-kpi' + (props.active === ds.id ? ' dsh-kpi-active' : ''),
+        onClick: function () { props.onSelect(ds.id) },
+        title: ds.description || ds.label
+      },
+        React.createElement('div', { className: 'dsh-kpi-head' },
+          React.createElement(Icon, { name: meta ? meta.icon : 'grid', size: 14 }),
+          React.createElement('div', { className: 'dsh-kpi-label' }, ds.label)),
+        React.createElement('div', { className: 'dsh-kpi-num' }, ds.count !== null && ds.count !== undefined ? String(ds.count) : '—'))
+    }))
+}
+
+function Skeleton() {
+  return React.createElement('div', { className: 'dsh-stack' },
+    React.createElement('div', { className: 'dsh-skeleton' }),
+    React.createElement('div', { className: 'dsh-skeleton' }),
+    React.createElement('div', { className: 'dsh-skeleton' }))
+}
+
+function EmptyState(props) {
+  return React.createElement('div', { className: 'dsh-empty' },
+    React.createElement(Icon, { name: 'search', size: 14 }),
+    props.text || 'No entries match the current filter.')
+}
+
+function H3(props) {
+  return React.createElement('h3', { className: 'dsh-h3' },
+    React.createElement(Icon, { name: props.icon, size: 13 }),
+    props.text)
+}
+
+function OverviewView(props) {
+  const d = props.data
+  if (!d) return null
+  const columns = ['Component', 'Category', 'Status']
+  return React.createElement('div', { className: 'dsh-stack' },
+    d.highlights ? React.createElement('div', { className: 'dsh-card dsh-accent-ok' },
+      React.createElement(H3, { icon: 'sparkle', text: 'Release highlights — ' + d.highlights.title }),
+      React.createElement('ul', { style: { margin: '4px 0' } },
+        (d.highlights.points || []).map(function (o) { return React.createElement('li', { key: o, className: 'dsh-li' }, o) }))) : null,
+    React.createElement('div', null,
+      React.createElement(H3, { icon: 'grid', text: 'Components' }),
+      React.createElement('table', { className: 'dsh-table' },
+        React.createElement('thead', null,
+          React.createElement('tr', null, columns.map(function (c) { return React.createElement('th', { key: c }, c) }))),
+        React.createElement('tbody', null, (d.components || []).map(function (t) {
+          return React.createElement('tr', { key: t.id },
+            React.createElement('td', null, React.createElement('b', null, t.id)),
+            React.createElement('td', null, t.category),
+            React.createElement('td', null, React.createElement('span', { className: 'dsh-badge' }, t.status)))
+        })))),
+    React.createElement('div', { className: 'dsh-cols' },
+      d.performance ? React.createElement('div', { className: 'dsh-col' },
+        React.createElement(H3, { icon: 'bolt', text: 'Runtime notes' }),
+        React.createElement('div', { className: 'dsh-card' },
+          React.createElement('ul', { style: { margin: '2px 0' } },
+            (d.performance.points || []).map(function (o) { return React.createElement('li', { key: o, className: 'dsh-li' }, o) })))) : null,
+      d.principles ? React.createElement('div', { className: 'dsh-col' },
+        React.createElement(H3, { icon: 'compass', text: 'Design principles' }),
+        React.createElement('div', { className: 'dsh-card' },
+          React.createElement('ul', { style: { margin: '2px 0' } },
+            (d.principles.points || []).map(function (o) { return React.createElement('li', { key: o, className: 'dsh-li' }, o) })))) : null,
+      d.compatibility ? React.createElement('div', { className: 'dsh-col' },
+        React.createElement(H3, { icon: 'link', text: 'Compatibility' }),
+        React.createElement('div', { className: 'dsh-card' },
+          React.createElement('ul', { style: { margin: '2px 0' } },
+            (d.compatibility.points || []).map(function (o) { return React.createElement('li', { key: o, className: 'dsh-li' }, o) })))) : null))
+}
+
+function DecisionsView(props) {
   const d = props.data
   const query = props.query
+  const chipState = React.useState(null)
+  const chip = chipState[0]
+  const setChip = chipState[1]
   if (!d) return null
-  const entries = (d.entries || []).filter(function (e) {
-    return matches(query, [e.id || '', e.claim_level || '', e.target || ''])
+  const entries = d.entries || []
+  const values = ['all'].concat(Array.from(new Set(entries.map(function (e) { return e.claim_level || '—' }))))
+  const filtered = entries.filter(function (e) {
+    const chipOk = chip === null || chip === 'all' || (e.claim_level || '—') === chip
+    return chipOk && matches(query, [e.id || '', e.claim_level || '', e.target || ''])
   })
   return React.createElement('div', { className: 'dsh-stack' },
-    React.createElement('div', { className: 'dsh-sub' }, 'schema ' + d.schema_version + ' · frozen ' + d.frozen_at + ' · showing ' + entries.length + '/' + (d.entries || []).length + ' entries'),
-    entries.map(function (e) {
-      return React.createElement('div', { key: e.id, className: 'dsh-card' },
+    React.createElement('div', { className: 'dsh-chips-row' },
+      values.map(function (v) {
+        const active = (chip === null && v === 'all') || chip === v
+        return React.createElement('button', {
+          key: v,
+          className: 'dsh-chip-btn' + (active ? ' dsh-chip-btn-active' : ''),
+          onClick: function () { setChip(v === 'all' ? null : v) }
+        }, v)
+      })),
+    React.createElement('div', { className: 'dsh-sub' }, 'schema ' + d.schema_version + ' · showing ' + filtered.length + '/' + entries.length + ' entries'),
+    filtered.length === 0 ? React.createElement(EmptyState) : filtered.map(function (e) {
+      return React.createElement('div', { key: e.id, className: 'dsh-card ' + accentClass(e.claim_level) },
         React.createElement('div', null,
           React.createElement('b', null, e.id), ' ',
           React.createElement('span', { className: 'dsh-badge' }, e.claim_level || '—')),
@@ -146,17 +314,32 @@ function EvidenceView(props) {
     }))
 }
 
-function ConflictsView(props) {
+function RejectedView(props) {
   const d = props.data
   const query = props.query
+  const chipState = React.useState(null)
+  const chip = chipState[0]
+  const setChip = chipState[1]
   if (!d) return null
-  const entries = (d.entries || []).filter(function (e) {
-    return matches(query, [e.id || '', e.target || '', e.path || '', e.lineage_decision || '', e.suspected_conflict || ''])
+  const entries = d.entries || []
+  const values = ['all'].concat(Array.from(new Set(entries.map(function (e) { return e.lineage_decision || 'recorded' }))))
+  const filtered = entries.filter(function (e) {
+    const chipOk = chip === null || chip === 'all' || (e.lineage_decision || 'recorded') === chip
+    return chipOk && matches(query, [e.id || '', e.target || '', e.path || '', e.lineage_decision || '', e.suspected_conflict || ''])
   })
   return React.createElement('div', { className: 'dsh-stack' },
-    React.createElement('div', { className: 'dsh-sub' }, 'schema ' + d.schema_version + ' · frozen ' + d.frozen_at + ' · showing ' + entries.length + '/' + (d.entries || []).length + ' records'),
-    entries.map(function (e) {
-      return React.createElement('div', { key: e.id, className: 'dsh-card' },
+    React.createElement('div', { className: 'dsh-chips-row' },
+      values.map(function (v) {
+        const active = (chip === null && v === 'all') || chip === v
+        return React.createElement('button', {
+          key: v,
+          className: 'dsh-chip-btn' + (active ? ' dsh-chip-btn-active' : ''),
+          onClick: function () { setChip(v === 'all' ? null : v) }
+        }, v)
+      })),
+    React.createElement('div', { className: 'dsh-sub' }, 'schema ' + d.schema_version + ' · showing ' + filtered.length + '/' + entries.length + ' records'),
+    filtered.length === 0 ? React.createElement(EmptyState) : filtered.map(function (e) {
+      return React.createElement('div', { key: e.id, className: 'dsh-card ' + accentClass(e.lineage_decision) },
         React.createElement('div', null,
           React.createElement('b', null, e.id), ' — ',
           React.createElement('span', { className: 'dsh-badge' }, e.lineage_decision || 'recorded'),
@@ -275,19 +458,38 @@ function GraphCell(props) {
   return React.createElement('div', { className: 'dsh-cell' })
 }
 
+const LEGEND = [
+  { kind: 'initial', label: 'initial' },
+  { kind: 'hotfix', label: 'hotfix' },
+  { kind: 'prerelease', label: 'prerelease' },
+  { kind: 'release', label: 'release' },
+  { kind: 'reverted', label: 'reverted' },
+  { kind: 'eol', label: 'end-of-life' }
+]
+
 function GitTreeView(props) {
   const d = props.data
   if (!d) return null
+  const selected = props.selected
   return React.createElement('div', { className: 'dsh-stack' },
     React.createElement('div', { className: 'dsh-sub' }, 'schema ' + d.schema_version + ' · updated ' + d.updated_at + ' — ' + d.provenance),
+    React.createElement('div', { className: 'dsh-legend' },
+      LEGEND.map(function (item) {
+        return React.createElement('span', { key: item.kind },
+          React.createElement('span', { className: 'dsh-legend-dot dsh-gh-' + item.kind }),
+          item.label)
+      })),
     (d.branches || []).map(function (branch) {
+      const collapsed = props.collapsed && props.collapsed[branch.id]
       const graph = buildBranchRows(branch)
       return React.createElement('div', { key: branch.id, className: 'dsh-card dsh-gh-branch' },
         React.createElement('div', { className: 'dsh-gh-branch-head' },
-          React.createElement('b', null, branch.label),
+          React.createElement('button', { className: 'dsh-gh-branch-btn', onClick: function () { props.onToggleBranch(branch.id) }, title: collapsed ? 'Expand branch' : 'Collapse branch' },
+            React.createElement('span', { className: 'dsh-chevron' }, collapsed ? '▸' : '▾'),
+            React.createElement('b', null, branch.label)),
           React.createElement('span', { className: 'dsh-muted' }, branch.track),
           React.createElement('span', { className: 'dsh-badge' }, 'head: ' + branch.head)),
-        React.createElement('div', { className: 'dsh-gh-list' },
+        collapsed ? null : React.createElement('div', { className: 'dsh-gh-list' },
           graph.rows.map(function (row, ri) {
             if (row.kind === 'connector') {
               return React.createElement('div', { key: 'c' + ri, className: 'dsh-gh-row dsh-gh-connector' },
@@ -296,7 +498,13 @@ function GitTreeView(props) {
                 React.createElement('div', { className: 'dsh-gh-body' }))
             }
             const node = row.node
-            return React.createElement('div', { key: node.id, className: 'dsh-gh-row dsh-gh-node-row' },
+            const isSelected = selected && selected.branch === branch.id && selected.node === node.id
+            const rendered = [React.createElement('div', {
+              key: node.id,
+              className: 'dsh-gh-row dsh-gh-node-row' + (isSelected ? ' dsh-gh-selected' : ''),
+              onClick: function () { props.onSelectNode(branch.id, node.id) },
+              title: node.summary
+            },
               React.createElement('div', { className: 'dsh-gh-cells' },
                 row.cells.map(function (cell, ci) { return React.createElement(GraphCell, { key: ci, cell: cell }) })),
               React.createElement('div', { className: 'dsh-gh-body' },
@@ -305,14 +513,23 @@ function GitTreeView(props) {
                   node.sha256 ? React.createElement('span', { className: 'dsh-gh-hash' }, node.sha256) : null,
                   React.createElement('span', { className: 'dsh-gh-kind dsh-gh-kind-' + node.kind }, node.kind),
                   node.promoted_at ? React.createElement('span', { className: 'dsh-gh-kind' }, 'promoted ' + node.promoted_at) : null),
-                React.createElement('div', { className: 'dsh-muted' }, node.summary),
-                node.note ? React.createElement('div', { className: 'dsh-gh-note' }, node.note) : null))
+                React.createElement('div', { className: 'dsh-muted' }, node.summary)))]
+            if (isSelected) {
+              rendered.push(React.createElement('div', { key: node.id + '-detail', className: 'dsh-gh-detail' },
+                React.createElement('div', { className: 'dsh-muted' }, 'parents: ' + ((node.parents && node.parents.length) ? node.parents.join(' ← ') : '(root)')),
+                React.createElement('div', { className: 'dsh-gh-note' }, node.note || 'No additional notes.'),
+                React.createElement('div', { className: 'dsh-muted' }, 'kind: ' + node.kind)))
+            }
+            return rendered
           })))
     }))
 }
 
 function ChangelogView(props) {
   const d = props.data
+  const openState = React.useState(null)
+  const openSet = openState[0]
+  const setOpenSet = openState[1]
   if (!d) return null
   const markdown = String(d.markdown || '')
   const blocks = []
@@ -329,23 +546,28 @@ function ChangelogView(props) {
       else if (current) { (current.intro = current.intro || []).push(text) }
     }
   }
+  const effective = openSet === null ? (blocks.length ? { [blocks[0].version]: true } : {}) : openSet
   return React.createElement('div', { className: 'dsh-stack' },
     React.createElement('div', { className: 'dsh-sub' }, 'source: ' + (d.source || '—')),
-    blocks.map(function (block) {
+    blocks.length === 0 ? React.createElement(EmptyState, { text: 'No changelog found.' }) : blocks.map(function (block) {
+      const open = Boolean(effective[block.version])
       return React.createElement('div', { key: block.version, className: 'dsh-card' },
         React.createElement('div', null,
-          React.createElement('span', { className: 'dsh-ch-dot' }),
-          React.createElement('span', { className: 'dsh-ch-version' }, block.version)),
-        (block.intro || []).map(function (b, i) {
-          return React.createElement('div', { key: 'i' + i, className: 'dsh-ch-bullet' }, '• ' + b)
-        }),
-        block.subs.map(function (sub) {
-          return React.createElement('div', { key: sub.title },
-            React.createElement('div', { className: 'dsh-ch-sub' }, React.createElement('b', null, sub.title)),
-            sub.bullets.map(function (b, i) {
-              return React.createElement('div', { key: 'b' + i, className: 'dsh-ch-bullet' }, '• ' + b)
-            }))
-        }))
+          React.createElement('button', { className: 'dsh-ch-version-btn', onClick: function () { const next = Object.assign({}, effective); if (open) delete next[block.version]; else next[block.version] = true; setOpenSet(next) } },
+            React.createElement('span', { className: 'dsh-chevron' }, open ? '▾' : '▸'),
+            React.createElement('span', { className: 'dsh-ch-dot' }),
+            block.version)),
+        open ? React.createElement('div', null,
+          (block.intro || []).map(function (b, i) {
+            return React.createElement('div', { key: 'i' + i, className: 'dsh-ch-bullet' }, '• ' + b)
+          }),
+          block.subs.map(function (sub) {
+            return React.createElement('div', { key: sub.title },
+              React.createElement('div', { className: 'dsh-ch-sub' }, React.createElement('b', null, sub.title)),
+              sub.bullets.map(function (b, i) {
+                return React.createElement('div', { key: 'b' + i, className: 'dsh-ch-bullet' }, '• ' + b)
+              }))
+          })) : null)
     }))
 }
 
@@ -354,10 +576,16 @@ function VersionsView(props) {
   if (!d) return null
   return React.createElement('div', { className: 'dsh-stack' },
     React.createElement('div', null,
-      React.createElement('h3', { className: 'dsh-h3' }, 'Research lineage versions'),
-      React.createElement(GitTreeView, { data: d.versions })),
+      React.createElement(H3, { icon: 'branch', text: 'Release history' }),
+      React.createElement(GitTreeView, {
+        data: d.versions,
+        selected: props.selected,
+        onSelectNode: props.onSelectNode,
+        collapsed: props.collapsed,
+        onToggleBranch: props.onToggleBranch
+      })),
     React.createElement('div', null,
-      React.createElement('h3', { className: 'dsh-h3' }, 'Repository changelog'),
+      React.createElement(H3, { icon: 'doc', text: 'Changelog' }),
       React.createElement(ChangelogView, { data: d.changelog })))
 }
 
@@ -368,15 +596,17 @@ function Dashboard(props) {
   const [query, setQuery] = React.useState('')
   const [meta, setMeta] = React.useState(null)
   const [reloadKey, setReloadKey] = React.useState(0)
+  const [selected, setSelected] = React.useState(null)
+  const [collapsed, setCollapsed] = React.useState({})
 
   React.useEffect(function () {
     let alive = true
     host.call('dash_data', { dataset: 'catalog' }).then(function (value) {
       if (!alive) return
       if (value && typeof value.error !== 'string' && Array.isArray(value.datasets)) setMeta(value)
-    }).catch(function () { /* catalog is optional; tabs fall back to FALLBACK_TABS */ })
+    }).catch(function () { /* catalog is optional */ })
     return function () { alive = false }
-  }, [])
+  }, [reloadKey])
 
   React.useEffect(function () {
     let alive = true
@@ -396,7 +626,31 @@ function Dashboard(props) {
     return function () { alive = false }
   }, [tab, reloadKey])
 
-  const tabs = (meta && meta.datasets) ? meta.datasets : FALLBACK_TABS
+  const switchTab = function (id) {
+    setTab(id)
+    setQuery('')
+    setData(null)
+    setError(null)
+    setSelected(null)
+  }
+
+  const selectNode = function (branch, node) {
+    setSelected(function (prev) {
+      if (prev && prev.branch === branch && prev.node === node) return null
+      return { branch: branch, node: node }
+    })
+  }
+
+  const toggleBranch = function (branch) {
+    setCollapsed(function (prev) {
+      const next = Object.assign({}, prev)
+      if (next[branch]) delete next[branch]
+      else next[branch] = true
+      return next
+    })
+  }
+
+  const tabs = (meta && meta.datasets) ? meta.datasets : TAB_META
   const showSearch = tab === 'evidence' || tab === 'conflicts'
 
   const body = error
@@ -404,29 +658,48 @@ function Dashboard(props) {
         'Host data unavailable: ' + error,
         React.createElement('button', { className: 'dsh-retry', onClick: function () { setReloadKey(function (k) { return k + 1 }) } }, 'Retry'))
     : !data
-      ? React.createElement('div', { className: 'dsh-muted' }, 'Loading…')
-      : tab === 'overview'
-        ? React.createElement(OverviewView, { data: data })
-        : tab === 'versions'
-          ? React.createElement(VersionsView, { data: data })
-          : React.createElement('div', { className: 'dsh-stack' },
-              showSearch ? React.createElement('div', null,
-                React.createElement('input', { className: 'dsh-input', placeholder: 'filter…', value: query, onChange: function (e) { setQuery(e.target.value) } })) : null,
-              tab === 'evidence'
-                ? React.createElement(EvidenceView, { data: data, query: query })
-                : React.createElement(ConflictsView, { data: data, query: query }))
+      ? React.createElement(Skeleton)
+      : React.createElement('div', { className: 'dsh-fade', key: tab + ':' + reloadKey },
+          tab === 'overview'
+            ? React.createElement(OverviewView, { data: data })
+            : tab === 'versions'
+              ? React.createElement(VersionsView, { data: data, selected: selected, onSelectNode: selectNode, collapsed: collapsed, onToggleBranch: toggleBranch })
+              : React.createElement('div', { className: 'dsh-stack' },
+                  showSearch ? React.createElement('div', null,
+                    React.createElement('input', { className: 'dsh-input', placeholder: 'filter…', value: query, onChange: function (e) { setQuery(e.target.value) } })) : null,
+                  tab === 'evidence'
+                    ? React.createElement(DecisionsView, { data: data, query: query })
+                    : React.createElement(RejectedView, { data: data, query: query })))
+
+  const dataDir = meta && meta.data_dir ? String(meta.data_dir).split('/').pop() : null
 
   return React.createElement('div', { className: 'dsh-wrap' },
     React.createElement('div', { className: 'dsh-header' },
-      React.createElement('div', { className: 'dsh-title' }, 'DSH Self-Harness Tools — Release Dashboard'),
-      React.createElement('div', { className: 'dsh-sub' }, 'Archive dashboard for the DSH self-harness tool suite: components, design decisions, rejected options, and the version tree.')),
+      React.createElement('div', { className: 'dsh-header-row' },
+        React.createElement('div', { className: 'dsh-title' }, 'DSH Self-Harness Tools — Release Dashboard'),
+        React.createElement('button', { className: 'dsh-icon-btn', title: 'Refresh data', onClick: function () { setReloadKey(function (k) { return k + 1 }) } },
+          React.createElement(Icon, { name: 'refresh', size: 13 }),
+          'Refresh')),
+      React.createElement('div', { className: 'dsh-sub' }, 'Archive dashboard for the DSH self-harness tool suite: components, design decisions, rejected options, and the version tree.'),
+      React.createElement('div', { className: 'dsh-chips' },
+        dataDir ? React.createElement('span', { className: 'dsh-chip' },
+          React.createElement(Icon, { name: 'folder', size: 11 }),
+          dataDir) : null,
+        React.createElement('span', { className: 'dsh-chip' },
+          React.createElement(Icon, { name: 'clock', size: 11 }),
+          '2026-08-16'))),
+    React.createElement(StatCards, { datasets: tabs, active: tab, onSelect: switchTab }),
     React.createElement('div', { className: 'dsh-tabs' },
       tabs.map(function (t) {
+        const icon = TAB_META.find(function (m) { return m.id === t.id })
         return React.createElement('button', {
           key: t.id,
           className: 'dsh-tab' + (tab === t.id ? ' dsh-tab-active' : ''),
-          onClick: function () { setTab(t.id); setQuery(''); setData(null); setError(null) }
-        }, t.label, t.count !== null && t.count !== undefined ? React.createElement('span', { className: 'dsh-badge' }, String(t.count)) : null)
+          onClick: function () { switchTab(t.id) }
+        },
+          React.createElement(Icon, { name: icon ? icon.icon : 'grid', size: 12 }),
+          t.label,
+          t.count !== null && t.count !== undefined ? React.createElement('span', { className: 'dsh-badge' }, String(t.count)) : null)
       })),
     body)
 }

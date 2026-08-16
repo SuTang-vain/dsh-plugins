@@ -1,13 +1,13 @@
 {
   "schema_version": "version-graph-v1",
-  "updated_at": "2026-08-15",
+  "updated_at": "2026-08-16",
   "provenance": "Release history of this repository. Node kinds: initial (gray), hotfix (amber), prerelease (blue), release (green), reverted (red).",
   "branches": [
     {
       "id": "releases",
       "label": "dsh-self-harness-tools · release history",
       "track": "main branch",
-      "head": "v1.4.0",
+      "head": "v1.6.0",
       "nodes": [
         { "id": "v1.0.0", "parents": [], "label": "v1.0", "kind": "initial", "summary": "Initial release: prior-probe probe battery tool + evidence-dashboard archive panel" },
         { "id": "v1.1.0", "parents": ["v1.0.0"], "label": "v1.1", "kind": "release", "summary": "api_key_file support, portable data directory, dashboard UX polish (badges, retry, search)" },
@@ -15,7 +15,11 @@
         { "id": "v1.3.0", "parents": ["v1.2.0"], "label": "v1.3", "kind": "release", "summary": "Lane-based git-graph with fork and merge lines" },
         { "id": "v1.4.0-rc", "parents": ["v1.3.0"], "label": "v1.4-rc", "kind": "prerelease", "summary": "Release candidate: git-tree visual upgrade" },
         { "id": "v1.3.1", "parents": ["v1.3.0"], "label": "v1.3.1", "kind": "hotfix", "summary": "Fix tab-switch crash (stale dataset guard + defensive views)" },
-        { "id": "v1.4.0", "parents": ["v1.4.0-rc", "v1.3.1"], "label": "v1.4", "kind": "release", "summary": "Git-tree visual upgrade: stronger lines, ringed nodes, kind pills, hover states", "note": "v1.3.1 hotfix merged into v1.4.0" }
+        { "id": "v1.4.0", "parents": ["v1.4.0-rc", "v1.3.1"], "label": "v1.4", "kind": "release", "summary": "Git-tree visual upgrade: stronger lines, ringed nodes, kind pills, hover states", "note": "v1.3.1 hotfix merged into v1.4.0" },
+        { "id": "v1.5.0", "parents": ["v1.4.0"], "label": "v1.5", "kind": "release", "summary": "Official DSH bundles: prior-probe bundle + dashboard dsh.client package; published to npm" },
+        { "id": "v1.6.0-rc", "parents": ["v1.5.0"], "label": "v1.6-rc", "kind": "prerelease", "summary": "Release candidate: Release Cockpit UI (KPI cards, interactive git-tree, filter chips)" },
+        { "id": "v1.5.1", "parents": ["v1.5.0"], "label": "v1.5.1", "kind": "hotfix", "summary": "Suite rename copy (dsh-self-harness-tools) + README restyle" },
+        { "id": "v1.6.0", "parents": ["v1.6.0-rc", "v1.5.1"], "label": "v1.6", "kind": "release", "summary": "Release Cockpit: KPI stat cards, interactive git-tree, filter chips, expandable changelog, empty states", "note": "v1.5.1 hotfix merged into v1.6.0" }
       ]
     }
   ]
