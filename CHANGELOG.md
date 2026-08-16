@@ -2,6 +2,17 @@
 
 All notable changes to the DSH plugin suite.
 
+## Unreleased
+
+- **Windows compatibility**: `node verify.js` and the kit CLI now run on
+  Windows checkouts. The YAML-subset parser normalizes CRLF line endings and
+  reports malformed lines with a line number, the probe-battery extension
+  and the bundle generator are CRLF-tolerant, and `pack-dry-run` spawns
+  `npm` through the shell on Windows (plain `spawnSync` can neither resolve
+  nor execute `npm.cmd` directly). Two CRLF regression tests were added to
+  the kit self-test, and CI now runs the verify matrix on `ubuntu-latest`
+  and `windows-latest`.
+
 ## v1.7.0 (2026-08-16)
 
 > Milestone note: v1.6.0–v1.6.2 are git-only milestones that were never
@@ -41,8 +52,8 @@ All notable changes to the DSH plugin suite.
   kit field-test report moved into the repository
   (`docs/kit-field-test.md`, 14/15 checks across three third-party repos).
   The root READMEs gained an Evidence / 效用证据 section.
-
 - `data/versions.json` extended with the v1.7.0 node (14 nodes, head v1.7.0).
+
 ## v1.6.2 (2026-08-16)
 
 - **evidence-dashboard horizontal release history**: the Versions tab now

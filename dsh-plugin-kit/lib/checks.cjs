@@ -140,7 +140,11 @@ const checks = {
     const dir = spec.dir || spec['pack-dry-run']
     if (!dir) fail('pack-dry-run needs a dir (or use the shorthand form)')
     const args = ['pack', '--dry-run', '--json'].concat(Array.isArray(spec.args) ? spec.args : [])
-    const result = spawnSync('npm', args, { cwd: path.join(ctx.root, dir), encoding: 'utf8' })
+    // On Windows, `npm` is npm.cmd: spawnSync cannot resolve it without a shell
+    // (ENOENT) and cannot execute .cmd directly (EINVAL) — go through cmd.exe.
+    const spawnOptions = { cwd: path.join(ctx.root, dir), encoding: 'utf8' }
+    if (process.platform === 'win32') spawnOptions.shell = true
+    const result = spawnSync('npm', args, spawnOptions)
     let extra = ''
     if (result.status === 0) {
       try {
@@ -149,7 +153,7 @@ const checks = {
         if (first && first.filename) extra = ' -> ' + first.filename + ' (' + first.size + ' bytes)'
       } catch (ignored) { /* keep extra empty */ }
     } else {
-      extra = ' -> ' + String(result.stderr || result.stdout).trim().split('\n')[0]
+      extra = ' -> ' + (result.error ? result.error.message : String(result.stderr || result.stdout || '').trim().split('\n')[0] || '(no output)')
     }
     return [{ pass: result.status === 0, message: (spec.message || 'pack dry-run') + ': ' + dir + extra }]
   }

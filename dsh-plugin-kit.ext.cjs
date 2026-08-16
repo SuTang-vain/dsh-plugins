@@ -11,7 +11,7 @@ const path = require('path')
 // grader regexes against representative answers.
 function batteryByteEqual(ctx) {
   const root = ctx.root
-  const hostSrc = fs.readFileSync(path.join(root, 'plugins/prior-probe/plugin.host.js'), 'utf8')
+  const hostSrc = fs.readFileSync(path.join(root, 'plugins/prior-probe/plugin.host.js'), 'utf8').replace(/\r\n?/g, '\n') // CRLF-tolerant marker lookup
   const start = hostSrc.indexOf('const BATTERIES')
   const end = hostSrc.lastIndexOf("return {\n  name: 'dsh-prior-probe',")
   if (start < 0 || end < 0) {

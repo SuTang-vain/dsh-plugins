@@ -42,7 +42,8 @@ async function genBundle(pluginDir, versionOverride) {
   if (!b.from || !b.to) throw new Error('bundle.from / bundle.to are required')
   if (!b['cut-after'] || !b['inject-after']) throw new Error('bundle.cut-after / bundle.inject-after are required')
 
-  const src = fs.readFileSync(path.join(pluginDir, b.from), 'utf8')
+  // Normalize CRLF so cut markers that contain literal \n work on Windows checkouts.
+  const src = fs.readFileSync(path.join(pluginDir, b.from), 'utf8').replace(/\r\n?/g, '\n')
   const startIdx = b['cut-before'] ? src.indexOf(b['cut-before']) : 0
   if (startIdx < 0) throw new Error('bundle.cut-before marker not found in ' + b.from)
   const cutIdx = src.indexOf(b['cut-after'])
@@ -68,7 +69,7 @@ async function genBundle(pluginDir, versionOverride) {
   const load = function (key) {
     const rel = templates[key]
     if (!rel) throw new Error('bundle.templates.' + key + ' is required')
-    return render(fs.readFileSync(path.join(pluginDir, rel), 'utf8'), vars)
+    return render(fs.readFileSync(path.join(pluginDir, rel), 'utf8').replace(/\r\n?/g, '\n'), vars)
   }
 
   const bundle = load('wrapper-head') + load('header') + stylesBlock + load('helpers') + rest + load('tail') + load('wrapper-tail')

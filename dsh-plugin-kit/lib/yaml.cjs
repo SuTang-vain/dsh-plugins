@@ -4,6 +4,7 @@
 //   - 2-space indentation per level
 //   - scalars: bare, single-quoted (no escapes), double-quoted (\\ \" \' \n \t)
 //   - flow lists: [a, b, "c, d"]
+//   - CRLF line endings are normalized before parsing
 //   - full-line comments and trailing ` #` comments (quote-aware)
 // Anything else (anchors, block scalars, flow maps, tabs) is rejected loudly.
 
@@ -147,11 +148,12 @@ function parseBlock(state, indent) {
 function parse(text) {
   const items = []
   let lineNo = 0
-  for (const line of text.split('\n')) {
+  for (const line of text.replace(/\r\n?/g, '\n').split('\n')) {
     lineNo++
     const stripped = stripComment(line)
     if (stripped.trim() === '') continue
     const m = /^(\s*)(\S.*)$/.exec(stripped)
+    if (m === null) fail('cannot parse line: ' + JSON.stringify(stripped), lineNo)
     if (m[1].includes('\t')) fail('tabs are not allowed for indentation', lineNo)
     if (m[1].length % 2 !== 0) fail('indent must be a multiple of 2 spaces', lineNo)
     items.push({ indent: m[1].length, text: m[2], lineNo })

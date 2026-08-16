@@ -69,6 +69,13 @@ test('yaml strips full-line and trailing comments (quote-aware)', () => {
   assert.strictEqual(v.b, 'x # y')
 })
 
+test('yaml tolerates CRLF line endings', () => {
+  const v = parse('version: 1\r\nverify:\r\n  - json: data/a.json\r\n  - count:\r\n      file: data/a.json\r\n      path: items.length\r\n      equals: 2\r\n')
+  assert.strictEqual(v.version, 1)
+  assert.strictEqual(v.verify.length, 2)
+  assert.deepStrictEqual(v.verify[1].count, { file: 'data/a.json', path: 'items.length', equals: 2 })
+})
+
 test('yaml rejects unsupported constructs with a line number', () => {
   const cases = [
     'a:\n\tb: 1', // tab indent
@@ -184,6 +191,43 @@ test('genbundle assembles the bundle per the protocol', async () => {
   assert.strictEqual(out, expected)
   assert.ok(!out.includes('dynamic header comment'), 'dynamic header comment must be dropped')
   assert.ok(!out.includes('return {\n  name'), 'dynamic return block must be dropped')
+})
+
+test('genbundle assembles CRLF sources into LF output', async () => {
+  const dir = tmpdir()
+  fs.mkdirSync(path.join(dir, 'tools', 'bundle'), { recursive: true })
+  fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ name: 'crlf-plugin', version: '1.0.0' }))
+  fs.writeFileSync(path.join(dir, 'plugin.client.js'), '// crlf header\r\nconst STYLES = [\r\n  \'.x { color: red; }\'\r\n].join(\'\\n\')\r\nconst ICONS = {}\r\nreturn {\r\n  name: \'crlf-plugin\',\r\n  apply(ctx) {},\r\n}\r\n')
+  fs.writeFileSync(path.join(dir, 'dsh-plugin-kit.yml'), [
+    'version: 1',
+    'bundle:',
+    '  name: crlf-plugin',
+    '  id: crlf-plugin',
+    '  from: plugin.client.js',
+    '  to: lib/client.js',
+    '  version-source: package.json',
+    '  cut-before: "const STYLES = ["',
+    "  inject-after: \"].join('\\\\n')\"",
+    "  cut-after: \"\\nreturn {\\n  name: 'crlf-plugin',\\n  apply(ctx) {\"",
+    '  templates:',
+    '    wrapper-head: tools/bundle/wrapper-head.txt',
+    '    header: tools/bundle/header.txt',
+    '    helpers: tools/bundle/helpers.txt',
+    '    tail: tools/bundle/tail.txt',
+    '    wrapper-tail: tools/bundle/wrapper-tail.txt'
+  ].join('\n'))
+  fs.writeFileSync(path.join(dir, 'tools/bundle/wrapper-head.txt'), 'WRAP_HEAD {{id}}\r\n')
+  fs.writeFileSync(path.join(dir, 'tools/bundle/header.txt'), 'HEAD {{name}} v{{version}}\r\n')
+  fs.writeFileSync(path.join(dir, 'tools/bundle/helpers.txt'), 'HELPERS\r\n')
+  fs.writeFileSync(path.join(dir, 'tools/bundle/tail.txt'), 'TAIL\r\n')
+  fs.writeFileSync(path.join(dir, 'tools/bundle/wrapper-tail.txt'), 'WRAP_TAIL\r\n')
+  const result = await genBundle(dir)
+  assert.strictEqual(result.to, 'lib/client.js')
+  const out = fs.readFileSync(path.join(dir, 'lib/client.js'), 'utf8')
+  assert.ok(!out.includes('\r'), 'generated bundle must be LF-only')
+  assert.ok(out.includes('HEAD crlf-plugin v1.0.0'), 'header template must render')
+  assert.ok(out.includes('const STYLES = [\n  \'.x { color: red; }\'\n].join(\'\\n\')'), 'styles block must survive the cut')
+  assert.ok(!out.includes('return {'), 'dynamic return block must be dropped')
 })
 
 // --- runner end-to-end ------------------------------------------------------
