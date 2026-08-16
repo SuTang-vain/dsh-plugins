@@ -86,7 +86,7 @@ const versionsGraph = read('plugins/evidence-dashboard/data/versions.json')
 const versionNodes = versionsGraph.branches.reduce((acc, b) => acc + (b.nodes || []).length, 0)
 ok(versionsGraph.schema_version === 'version-graph-v1', 'version graph schema is v1')
 ok(versionsGraph.branches.length === 1, 'version graph has 1 branch')
-ok(versionNodes === 11, 'version graph has 11 nodes')
+ok(versionNodes === 12, 'version graph has 12 nodes')
 for (const branch of versionsGraph.branches) for (const node of branch.nodes) {
   ok(typeof node.id === 'string' && typeof node.kind === 'string' && typeof node.summary === 'string', 'version node well-formed: ' + node.id)
   for (const parentId of (node.parents || [])) {

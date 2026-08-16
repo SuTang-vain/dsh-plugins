@@ -1,6 +1,6 @@
 {
   "name": "dsh-prior-probe",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Frozen probe-battery tools for DeepSeek Harness: list batteries, offline deterministic regex scoring, and no-harness single-shot probing via any OpenAI-compatible endpoint.",
   "type": "module",
   "main": "index.js",

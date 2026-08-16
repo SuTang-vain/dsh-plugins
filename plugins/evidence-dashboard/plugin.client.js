@@ -1,22 +1,24 @@
-// dsh-evidence-dashboard — Client half (dynamic variant), v1.6 "Release Cockpit".
+// dsh-evidence-dashboard — Client half (dynamic variant), v1.6.1 "Release Cockpit".
 // Registered in two additive slots:
 //   tool.view.cordis (key 'self')  — inside this Package's latest run card
 //   settings.section (dsh-evidence) — a full settings page for later browsing
 // All data arrives over Package-private RPC from the Host half.
 //
-// v1.6: KPI stat cards, pill navigation, skeleton loading, fade transitions,
-// interactive git-tree (node detail / branch collapse / legend), filter chips,
-// expandable changelog, empty states, and monochrome inline SVG icons.
+// v1.6.1: self-contained EN/中文 language toggle (defaults to the browser
+// language), monochrome inline SVG icons, KPI stat cards, interactive
+// git-tree, filter chips, expandable changelog, skeleton/fade/empty states.
 
 const STYLES = [
   '.dsh-wrap { font-size: 13px; line-height: 1.5; color: var(--dsw-alias-label-primary, inherit); max-width: 860px; }',
   '.dsh-header { margin-bottom: 10px; }',
   '.dsh-header-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }',
+  '.dsh-header-actions { display: flex; align-items: center; gap: 6px; }',
   '.dsh-title { font-size: 15px; font-weight: 600; margin: 0 0 2px; }',
   '.dsh-sub { color: var(--dsw-alias-label-secondary, inherit); opacity: 0.85; font-size: 12px; }',
   '.dsh-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }',
   '.dsh-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; border: 1px solid var(--dsw-alias-border-l1, rgba(128,128,128,0.35)); border-radius: 10px; padding: 1px 8px; color: var(--dsw-alias-label-secondary, inherit); white-space: nowrap; }',
   '.dsh-icon-btn { display: inline-flex; align-items: center; gap: 4px; background: transparent; border: 1px solid var(--dsw-alias-border-l2, rgba(128,128,128,0.5)); border-radius: 6px; padding: 2px 8px; cursor: pointer; color: inherit; font-size: 12px; }',
+  '.dsh-lang-btn { display: inline-flex; align-items: center; background: transparent; border: 1px solid var(--dsw-alias-border-l2, rgba(128,128,128,0.5)); border-radius: 6px; padding: 2px 8px; cursor: pointer; color: inherit; font-size: 11px; }',
   '.dsh-kpis { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }',
   '.dsh-kpi { flex: 1; min-width: 96px; border: 1px solid var(--dsw-alias-border-l1, rgba(128,128,128,0.35)); border-radius: 10px; padding: 8px 10px; cursor: pointer; background: transparent; }',
   '.dsh-kpi:hover { border-color: var(--dsw-alias-border-l2, rgba(128,128,128,0.5)); }',
@@ -185,11 +187,82 @@ function Icon(props) {
 }
 
 const TAB_META = [
-  { id: 'overview', label: 'Overview', icon: 'grid' },
-  { id: 'evidence', label: 'Decisions', icon: 'list' },
-  { id: 'conflicts', label: 'Rejected options', icon: 'ban' },
-  { id: 'versions', label: 'Versions', icon: 'branch' }
+  { id: 'overview', icon: 'grid' },
+  { id: 'evidence', icon: 'list' },
+  { id: 'conflicts', icon: 'ban' },
+  { id: 'versions', icon: 'branch' }
 ]
+
+// Self-contained bilingual dictionary; the header toggle flips LANG state.
+const T = {
+  en: {
+    title: 'DSH Self-Harness Tools — Release Dashboard',
+    subtitle: 'Archive dashboard for the DSH self-harness tool suite: components, design decisions, rejected options, and the version tree.',
+    updated: '2026-08-16',
+    refresh: 'Refresh',
+    retry: 'Retry',
+    hostError: 'Host data unavailable: ',
+    filter: 'filter…',
+    all: 'all',
+    showing: 'showing',
+    entries: 'entries',
+    records: 'records',
+    empty: 'No entries match the current filter.',
+    noChangelog: 'No changelog found.',
+    schema: 'schema',
+    source: 'source',
+    tabs: { overview: 'Overview', evidence: 'Decisions', conflicts: 'Rejected options', versions: 'Versions' },
+    sections: { highlights: 'Release highlights', components: 'Components', runtime: 'Runtime notes', principles: 'Design principles', compat: 'Compatibility', history: 'Release history', changelog: 'Changelog' },
+    legend: { initial: 'initial', hotfix: 'hotfix', prerelease: 'prerelease', release: 'release', reverted: 'reverted', eol: 'end-of-life' },
+    head: 'head',
+    parents: 'parents',
+    root: '(root)',
+    kind: 'kind',
+    noNotes: 'No additional notes.',
+    collapse: 'Collapse branch',
+    expand: 'Expand branch',
+    refreshTitle: 'Refresh data',
+    langSwitch: '中文'
+  },
+  zh: {
+    title: 'DSH Self-Harness Tools — 发布仪表盘',
+    subtitle: 'DSH self-harness 工具套件归档仪表盘：组件概览、设计决策、已否决选项与版本树。',
+    updated: '2026-08-16',
+    refresh: '刷新',
+    retry: '重试',
+    hostError: 'Host 数据不可用：',
+    filter: '筛选…',
+    all: '全部',
+    showing: '显示',
+    entries: '条',
+    records: '条记录',
+    empty: '没有匹配当前筛选的条目。',
+    noChangelog: '未找到 changelog。',
+    schema: 'schema',
+    source: '来源',
+    tabs: { overview: '概览', evidence: '决策', conflicts: '已否决选项', versions: '版本' },
+    sections: { highlights: '发布亮点', components: '组件', runtime: '运行时说明', principles: '设计原则', compat: '兼容性', history: '发布历史', changelog: '变更日志' },
+    legend: { initial: '初始', hotfix: '热修复', prerelease: '预发布', release: '发布', reverted: '已回滚', eol: '生命周期结束' },
+    head: 'HEAD',
+    parents: '父节点',
+    root: '(根)',
+    kind: '类型',
+    noNotes: '无附加说明。',
+    collapse: '折叠分支',
+    expand: '展开分支',
+    refreshTitle: '刷新数据',
+    langSwitch: 'EN'
+  }
+}
+
+function detectLang() {
+  try {
+    if (typeof navigator !== 'undefined' && navigator.language) {
+      return String(navigator.language).toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en'
+    }
+  } catch (ignored) { /* keep en */ }
+  return 'en'
+}
 
 function matches(query, fields) {
   if (!query) return true
@@ -213,11 +286,11 @@ function StatCards(props) {
         key: ds.id,
         className: 'dsh-kpi' + (props.active === ds.id ? ' dsh-kpi-active' : ''),
         onClick: function () { props.onSelect(ds.id) },
-        title: ds.description || ds.label
+        title: ds.description || props.t.tabs[ds.id]
       },
         React.createElement('div', { className: 'dsh-kpi-head' },
           React.createElement(Icon, { name: meta ? meta.icon : 'grid', size: 14 }),
-          React.createElement('div', { className: 'dsh-kpi-label' }, ds.label)),
+          React.createElement('div', { className: 'dsh-kpi-label' }, props.t.tabs[ds.id] || ds.label)),
         React.createElement('div', { className: 'dsh-kpi-num' }, ds.count !== null && ds.count !== undefined ? String(ds.count) : '—'))
     }))
 }
@@ -232,7 +305,7 @@ function Skeleton() {
 function EmptyState(props) {
   return React.createElement('div', { className: 'dsh-empty' },
     React.createElement(Icon, { name: 'search', size: 14 }),
-    props.text || 'No entries match the current filter.')
+    props.text)
 }
 
 function H3(props) {
@@ -243,37 +316,38 @@ function H3(props) {
 
 function OverviewView(props) {
   const d = props.data
+  const t = props.t
   if (!d) return null
   const columns = ['Component', 'Category', 'Status']
   return React.createElement('div', { className: 'dsh-stack' },
     d.highlights ? React.createElement('div', { className: 'dsh-card dsh-accent-ok' },
-      React.createElement(H3, { icon: 'sparkle', text: 'Release highlights — ' + d.highlights.title }),
+      React.createElement(H3, { icon: 'sparkle', text: t.sections.highlights + ' — ' + d.highlights.title }),
       React.createElement('ul', { style: { margin: '4px 0' } },
         (d.highlights.points || []).map(function (o) { return React.createElement('li', { key: o, className: 'dsh-li' }, o) }))) : null,
     React.createElement('div', null,
-      React.createElement(H3, { icon: 'grid', text: 'Components' }),
+      React.createElement(H3, { icon: 'grid', text: t.sections.components }),
       React.createElement('table', { className: 'dsh-table' },
         React.createElement('thead', null,
           React.createElement('tr', null, columns.map(function (c) { return React.createElement('th', { key: c }, c) }))),
-        React.createElement('tbody', null, (d.components || []).map(function (t) {
-          return React.createElement('tr', { key: t.id },
-            React.createElement('td', null, React.createElement('b', null, t.id)),
-            React.createElement('td', null, t.category),
-            React.createElement('td', null, React.createElement('span', { className: 'dsh-badge' }, t.status)))
+        React.createElement('tbody', null, (d.components || []).map(function (item) {
+          return React.createElement('tr', { key: item.id },
+            React.createElement('td', null, React.createElement('b', null, item.id)),
+            React.createElement('td', null, item.category),
+            React.createElement('td', null, React.createElement('span', { className: 'dsh-badge' }, item.status)))
         })))),
     React.createElement('div', { className: 'dsh-cols' },
       d.performance ? React.createElement('div', { className: 'dsh-col' },
-        React.createElement(H3, { icon: 'bolt', text: 'Runtime notes' }),
+        React.createElement(H3, { icon: 'bolt', text: t.sections.runtime }),
         React.createElement('div', { className: 'dsh-card' },
           React.createElement('ul', { style: { margin: '2px 0' } },
             (d.performance.points || []).map(function (o) { return React.createElement('li', { key: o, className: 'dsh-li' }, o) })))) : null,
       d.principles ? React.createElement('div', { className: 'dsh-col' },
-        React.createElement(H3, { icon: 'compass', text: 'Design principles' }),
+        React.createElement(H3, { icon: 'compass', text: t.sections.principles }),
         React.createElement('div', { className: 'dsh-card' },
           React.createElement('ul', { style: { margin: '2px 0' } },
             (d.principles.points || []).map(function (o) { return React.createElement('li', { key: o, className: 'dsh-li' }, o) })))) : null,
       d.compatibility ? React.createElement('div', { className: 'dsh-col' },
-        React.createElement(H3, { icon: 'link', text: 'Compatibility' }),
+        React.createElement(H3, { icon: 'link', text: t.sections.compat }),
         React.createElement('div', { className: 'dsh-card' },
           React.createElement('ul', { style: { margin: '2px 0' } },
             (d.compatibility.points || []).map(function (o) { return React.createElement('li', { key: o, className: 'dsh-li' }, o) })))) : null))
@@ -282,33 +356,34 @@ function OverviewView(props) {
 function DecisionsView(props) {
   const d = props.data
   const query = props.query
+  const t = props.t
   const chipState = React.useState(null)
   const chip = chipState[0]
   const setChip = chipState[1]
   if (!d) return null
   const entries = d.entries || []
-  const values = ['all'].concat(Array.from(new Set(entries.map(function (e) { return e.claim_level || '—' }))))
+  const values = [t.all].concat(Array.from(new Set(entries.map(function (e) { return e.claim_level || '—' }))))
   const filtered = entries.filter(function (e) {
-    const chipOk = chip === null || chip === 'all' || (e.claim_level || '—') === chip
+    const chipOk = chip === null || chip === t.all || (e.claim_level || '—') === chip
     return chipOk && matches(query, [e.id || '', e.claim_level || '', e.target || ''])
   })
   return React.createElement('div', { className: 'dsh-stack' },
     React.createElement('div', { className: 'dsh-chips-row' },
       values.map(function (v) {
-        const active = (chip === null && v === 'all') || chip === v
+        const active = (chip === null && v === t.all) || chip === v
         return React.createElement('button', {
           key: v,
           className: 'dsh-chip-btn' + (active ? ' dsh-chip-btn-active' : ''),
-          onClick: function () { setChip(v === 'all' ? null : v) }
+          onClick: function () { setChip(v === t.all ? null : v) }
         }, v)
       })),
-    React.createElement('div', { className: 'dsh-sub' }, 'schema ' + d.schema_version + ' · showing ' + filtered.length + '/' + entries.length + ' entries'),
-    filtered.length === 0 ? React.createElement(EmptyState) : filtered.map(function (e) {
+    React.createElement('div', { className: 'dsh-sub' }, t.schema + ' ' + d.schema_version + ' · ' + t.showing + ' ' + filtered.length + '/' + entries.length + ' ' + t.entries),
+    filtered.length === 0 ? React.createElement(EmptyState, { text: t.empty }) : filtered.map(function (e) {
       return React.createElement('div', { key: e.id, className: 'dsh-card ' + accentClass(e.claim_level) },
         React.createElement('div', null,
           React.createElement('b', null, e.id), ' ',
           React.createElement('span', { className: 'dsh-badge' }, e.claim_level || '—')),
-        React.createElement('div', { className: 'dsh-muted' }, 'source: ' + (e.source || '—')),
+        React.createElement('div', { className: 'dsh-muted' }, t.source + ': ' + (e.source || '—')),
         (e.supports && e.supports.length) ? React.createElement('div', null, React.createElement('b', null, 'supports'), React.createElement('ul', { style: { margin: '2px 0' } }, e.supports.map(function (s) { return React.createElement('li', { key: s, className: 'dsh-li' }, s) }))) : null,
         (e.does_not_support && e.does_not_support.length) ? React.createElement('div', null, React.createElement('b', null, 'does not support'), React.createElement('ul', { style: { margin: '2px 0' } }, e.does_not_support.map(function (s) { return React.createElement('li', { key: s, className: 'dsh-li' }, s) }))) : null)
     }))
@@ -317,28 +392,29 @@ function DecisionsView(props) {
 function RejectedView(props) {
   const d = props.data
   const query = props.query
+  const t = props.t
   const chipState = React.useState(null)
   const chip = chipState[0]
   const setChip = chipState[1]
   if (!d) return null
   const entries = d.entries || []
-  const values = ['all'].concat(Array.from(new Set(entries.map(function (e) { return e.lineage_decision || 'recorded' }))))
+  const values = [t.all].concat(Array.from(new Set(entries.map(function (e) { return e.lineage_decision || 'recorded' }))))
   const filtered = entries.filter(function (e) {
-    const chipOk = chip === null || chip === 'all' || (e.lineage_decision || 'recorded') === chip
+    const chipOk = chip === null || chip === t.all || (e.lineage_decision || 'recorded') === chip
     return chipOk && matches(query, [e.id || '', e.target || '', e.path || '', e.lineage_decision || '', e.suspected_conflict || ''])
   })
   return React.createElement('div', { className: 'dsh-stack' },
     React.createElement('div', { className: 'dsh-chips-row' },
       values.map(function (v) {
-        const active = (chip === null && v === 'all') || chip === v
+        const active = (chip === null && v === t.all) || chip === v
         return React.createElement('button', {
           key: v,
           className: 'dsh-chip-btn' + (active ? ' dsh-chip-btn-active' : ''),
-          onClick: function () { setChip(v === 'all' ? null : v) }
+          onClick: function () { setChip(v === t.all ? null : v) }
         }, v)
       })),
-    React.createElement('div', { className: 'dsh-sub' }, 'schema ' + d.schema_version + ' · showing ' + filtered.length + '/' + entries.length + ' records'),
-    filtered.length === 0 ? React.createElement(EmptyState) : filtered.map(function (e) {
+    React.createElement('div', { className: 'dsh-sub' }, t.schema + ' ' + d.schema_version + ' · ' + t.showing + ' ' + filtered.length + '/' + entries.length + ' ' + t.records),
+    filtered.length === 0 ? React.createElement(EmptyState, { text: t.empty }) : filtered.map(function (e) {
       return React.createElement('div', { key: e.id, className: 'dsh-card ' + accentClass(e.lineage_decision) },
         React.createElement('div', null,
           React.createElement('b', null, e.id), ' — ',
@@ -458,37 +534,31 @@ function GraphCell(props) {
   return React.createElement('div', { className: 'dsh-cell' })
 }
 
-const LEGEND = [
-  { kind: 'initial', label: 'initial' },
-  { kind: 'hotfix', label: 'hotfix' },
-  { kind: 'prerelease', label: 'prerelease' },
-  { kind: 'release', label: 'release' },
-  { kind: 'reverted', label: 'reverted' },
-  { kind: 'eol', label: 'end-of-life' }
-]
+const LEGEND_KINDS = ['initial', 'hotfix', 'prerelease', 'release', 'reverted', 'eol']
 
 function GitTreeView(props) {
   const d = props.data
+  const t = props.t
   if (!d) return null
   const selected = props.selected
   return React.createElement('div', { className: 'dsh-stack' },
-    React.createElement('div', { className: 'dsh-sub' }, 'schema ' + d.schema_version + ' · updated ' + d.updated_at + ' — ' + d.provenance),
+    React.createElement('div', { className: 'dsh-sub' }, t.schema + ' ' + d.schema_version + ' · ' + t.updated + ' ' + d.updated_at + ' — ' + d.provenance),
     React.createElement('div', { className: 'dsh-legend' },
-      LEGEND.map(function (item) {
-        return React.createElement('span', { key: item.kind },
-          React.createElement('span', { className: 'dsh-legend-dot dsh-gh-' + item.kind }),
-          item.label)
+      LEGEND_KINDS.map(function (kind) {
+        return React.createElement('span', { key: kind },
+          React.createElement('span', { className: 'dsh-legend-dot dsh-gh-' + kind }),
+          t.legend[kind] || kind)
       })),
     (d.branches || []).map(function (branch) {
       const collapsed = props.collapsed && props.collapsed[branch.id]
       const graph = buildBranchRows(branch)
       return React.createElement('div', { key: branch.id, className: 'dsh-card dsh-gh-branch' },
         React.createElement('div', { className: 'dsh-gh-branch-head' },
-          React.createElement('button', { className: 'dsh-gh-branch-btn', onClick: function () { props.onToggleBranch(branch.id) }, title: collapsed ? 'Expand branch' : 'Collapse branch' },
+          React.createElement('button', { className: 'dsh-gh-branch-btn', onClick: function () { props.onToggleBranch(branch.id) }, title: collapsed ? t.expand : t.collapse },
             React.createElement('span', { className: 'dsh-chevron' }, collapsed ? '▸' : '▾'),
             React.createElement('b', null, branch.label)),
           React.createElement('span', { className: 'dsh-muted' }, branch.track),
-          React.createElement('span', { className: 'dsh-badge' }, 'head: ' + branch.head)),
+          React.createElement('span', { className: 'dsh-badge' }, t.head + ': ' + branch.head)),
         collapsed ? null : React.createElement('div', { className: 'dsh-gh-list' },
           graph.rows.map(function (row, ri) {
             if (row.kind === 'connector') {
@@ -512,13 +582,13 @@ function GitTreeView(props) {
                   React.createElement('span', { className: 'dsh-gh-label' }, node.label || node.id),
                   node.sha256 ? React.createElement('span', { className: 'dsh-gh-hash' }, node.sha256) : null,
                   React.createElement('span', { className: 'dsh-gh-kind dsh-gh-kind-' + node.kind }, node.kind),
-                  node.promoted_at ? React.createElement('span', { className: 'dsh-gh-kind' }, 'promoted ' + node.promoted_at) : null),
+                  node.promoted_at ? React.createElement('span', { className: 'dsh-gh-kind' }, node.promoted_at) : null),
                 React.createElement('div', { className: 'dsh-muted' }, node.summary)))]
             if (isSelected) {
               rendered.push(React.createElement('div', { key: node.id + '-detail', className: 'dsh-gh-detail' },
-                React.createElement('div', { className: 'dsh-muted' }, 'parents: ' + ((node.parents && node.parents.length) ? node.parents.join(' ← ') : '(root)')),
-                React.createElement('div', { className: 'dsh-gh-note' }, node.note || 'No additional notes.'),
-                React.createElement('div', { className: 'dsh-muted' }, 'kind: ' + node.kind)))
+                React.createElement('div', { className: 'dsh-muted' }, t.parents + ': ' + ((node.parents && node.parents.length) ? node.parents.join(' ← ') : t.root)),
+                React.createElement('div', { className: 'dsh-gh-note' }, node.note || t.noNotes),
+                React.createElement('div', { className: 'dsh-muted' }, t.kind + ': ' + node.kind)))
             }
             return rendered
           })))
@@ -527,6 +597,7 @@ function GitTreeView(props) {
 
 function ChangelogView(props) {
   const d = props.data
+  const t = props.t
   const openState = React.useState(null)
   const openSet = openState[0]
   const setOpenSet = openState[1]
@@ -548,8 +619,8 @@ function ChangelogView(props) {
   }
   const effective = openSet === null ? (blocks.length ? { [blocks[0].version]: true } : {}) : openSet
   return React.createElement('div', { className: 'dsh-stack' },
-    React.createElement('div', { className: 'dsh-sub' }, 'source: ' + (d.source || '—')),
-    blocks.length === 0 ? React.createElement(EmptyState, { text: 'No changelog found.' }) : blocks.map(function (block) {
+    React.createElement('div', { className: 'dsh-sub' }, t.source + ': ' + (d.source || '—')),
+    blocks.length === 0 ? React.createElement(EmptyState, { text: t.noChangelog }) : blocks.map(function (block) {
       const open = Boolean(effective[block.version])
       return React.createElement('div', { key: block.version, className: 'dsh-card' },
         React.createElement('div', null,
@@ -573,20 +644,22 @@ function ChangelogView(props) {
 
 function VersionsView(props) {
   const d = props.data
+  const t = props.t
   if (!d) return null
   return React.createElement('div', { className: 'dsh-stack' },
     React.createElement('div', null,
-      React.createElement(H3, { icon: 'branch', text: 'Release history' }),
+      React.createElement(H3, { icon: 'branch', text: t.sections.history }),
       React.createElement(GitTreeView, {
         data: d.versions,
+        t: t,
         selected: props.selected,
         onSelectNode: props.onSelectNode,
         collapsed: props.collapsed,
         onToggleBranch: props.onToggleBranch
       })),
     React.createElement('div', null,
-      React.createElement(H3, { icon: 'doc', text: 'Changelog' }),
-      React.createElement(ChangelogView, { data: d.changelog })))
+      React.createElement(H3, { icon: 'doc', text: t.sections.changelog }),
+      React.createElement(ChangelogView, { data: d.changelog, t: t })))
 }
 
 function Dashboard(props) {
@@ -598,6 +671,9 @@ function Dashboard(props) {
   const [reloadKey, setReloadKey] = React.useState(0)
   const [selected, setSelected] = React.useState(null)
   const [collapsed, setCollapsed] = React.useState({})
+  const [lang, setLang] = React.useState(detectLang)
+
+  const t = T[lang] || T.en
 
   React.useEffect(function () {
     let alive = true
@@ -655,51 +731,53 @@ function Dashboard(props) {
 
   const body = error
     ? React.createElement('div', { className: 'dsh-err' },
-        'Host data unavailable: ' + error,
-        React.createElement('button', { className: 'dsh-retry', onClick: function () { setReloadKey(function (k) { return k + 1 }) } }, 'Retry'))
+        t.hostError + error,
+        React.createElement('button', { className: 'dsh-retry', onClick: function () { setReloadKey(function (k) { return k + 1 }) } }, t.retry))
     : !data
       ? React.createElement(Skeleton)
-      : React.createElement('div', { className: 'dsh-fade', key: tab + ':' + reloadKey },
+      : React.createElement('div', { className: 'dsh-fade', key: tab + ':' + reloadKey + ':' + lang },
           tab === 'overview'
-            ? React.createElement(OverviewView, { data: data })
+            ? React.createElement(OverviewView, { data: data, t: t })
             : tab === 'versions'
-              ? React.createElement(VersionsView, { data: data, selected: selected, onSelectNode: selectNode, collapsed: collapsed, onToggleBranch: toggleBranch })
+              ? React.createElement(VersionsView, { data: data, t: t, selected: selected, onSelectNode: selectNode, collapsed: collapsed, onToggleBranch: toggleBranch })
               : React.createElement('div', { className: 'dsh-stack' },
                   showSearch ? React.createElement('div', null,
-                    React.createElement('input', { className: 'dsh-input', placeholder: 'filter…', value: query, onChange: function (e) { setQuery(e.target.value) } })) : null,
+                    React.createElement('input', { className: 'dsh-input', placeholder: t.filter, value: query, onChange: function (e) { setQuery(e.target.value) } })) : null,
                   tab === 'evidence'
-                    ? React.createElement(DecisionsView, { data: data, query: query })
-                    : React.createElement(RejectedView, { data: data, query: query })))
+                    ? React.createElement(DecisionsView, { data: data, query: query, t: t })
+                    : React.createElement(RejectedView, { data: data, query: query, t: t })))
 
   const dataDir = meta && meta.data_dir ? String(meta.data_dir).split('/').pop() : null
 
   return React.createElement('div', { className: 'dsh-wrap' },
     React.createElement('div', { className: 'dsh-header' },
       React.createElement('div', { className: 'dsh-header-row' },
-        React.createElement('div', { className: 'dsh-title' }, 'DSH Self-Harness Tools — Release Dashboard'),
-        React.createElement('button', { className: 'dsh-icon-btn', title: 'Refresh data', onClick: function () { setReloadKey(function (k) { return k + 1 }) } },
-          React.createElement(Icon, { name: 'refresh', size: 13 }),
-          'Refresh')),
-      React.createElement('div', { className: 'dsh-sub' }, 'Archive dashboard for the DSH self-harness tool suite: components, design decisions, rejected options, and the version tree.'),
+        React.createElement('div', { className: 'dsh-title' }, t.title),
+        React.createElement('div', { className: 'dsh-header-actions' },
+          React.createElement('button', { className: 'dsh-lang-btn', title: 'Language / 语言', onClick: function () { setLang(lang === 'zh' ? 'en' : 'zh') } }, t.langSwitch),
+          React.createElement('button', { className: 'dsh-icon-btn', title: t.refreshTitle, onClick: function () { setReloadKey(function (k) { return k + 1 }) } },
+            React.createElement(Icon, { name: 'refresh', size: 13 }),
+            t.refresh))),
+      React.createElement('div', { className: 'dsh-sub' }, t.subtitle),
       React.createElement('div', { className: 'dsh-chips' },
         dataDir ? React.createElement('span', { className: 'dsh-chip' },
           React.createElement(Icon, { name: 'folder', size: 11 }),
           dataDir) : null,
         React.createElement('span', { className: 'dsh-chip' },
           React.createElement(Icon, { name: 'clock', size: 11 }),
-          '2026-08-16'))),
-    React.createElement(StatCards, { datasets: tabs, active: tab, onSelect: switchTab }),
+          t.updated))),
+    React.createElement(StatCards, { datasets: tabs, active: tab, onSelect: switchTab, t: t }),
     React.createElement('div', { className: 'dsh-tabs' },
-      tabs.map(function (t) {
-        const icon = TAB_META.find(function (m) { return m.id === t.id })
+      tabs.map(function (tabItem) {
+        const icon = TAB_META.find(function (m) { return m.id === tabItem.id })
         return React.createElement('button', {
-          key: t.id,
-          className: 'dsh-tab' + (tab === t.id ? ' dsh-tab-active' : ''),
-          onClick: function () { switchTab(t.id) }
+          key: tabItem.id,
+          className: 'dsh-tab' + (tab === tabItem.id ? ' dsh-tab-active' : ''),
+          onClick: function () { switchTab(tabItem.id) }
         },
           React.createElement(Icon, { name: icon ? icon.icon : 'grid', size: 12 }),
-          t.label,
-          t.count !== null && t.count !== undefined ? React.createElement('span', { className: 'dsh-badge' }, String(t.count)) : null)
+          t.tabs[tabItem.id] || tabItem.label,
+          tabItem.count !== null && tabItem.count !== undefined ? React.createElement('span', { className: 'dsh-badge' }, String(tabItem.count)) : null)
       })),
     body)
 }

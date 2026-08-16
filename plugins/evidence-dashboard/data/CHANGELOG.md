@@ -2,6 +2,15 @@
 
 All notable changes to the DSH plugin suite.
 
+## v1.6.1 (2026-08-16)
+
+- **evidence-dashboard i18n**: self-contained EN/中文 language toggle in the
+  header (defaults to the browser language) — tab labels, section headings,
+  legend, controls, and empty states translate in place; no external
+  dependencies; the dynamic variant and the official web bundle behave
+  identically.
+- `data/versions.json` extended with the v1.6.1 node (12 nodes).
+
 ## v1.6 (2026-08-16)
 
 - **evidence-dashboard "Release Cockpit"**: KPI stat cards (click to switch
