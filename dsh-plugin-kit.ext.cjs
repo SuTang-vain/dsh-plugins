@@ -25,6 +25,18 @@ function batteryByteEqual(ctx) {
   ctx.ok(JSON.stringify(lib.BATTERIES.v1.probes) === JSON.stringify(v1file.probes), 'embedded v1 probes byte-equal to data/ original')
   ctx.ok(JSON.stringify(lib.BATTERIES.tsmcp.probes) === JSON.stringify(tsfile.probes), 'embedded ts-mcp probes byte-equal to data/ original')
 
+  // Calibration metadata must stay in sync across the embedded copy and the
+  // data/ original, and must form a coherent calibration window.
+  const metaPairs = [['v1', v1file], ['tsmcp', tsfile]]
+  for (const [key, dataFile] of metaPairs) {
+    const embedded = lib.BATTERIES[key]
+    ctx.ok(embedded.frozen_at === dataFile.frozen_at, 'embedded ' + key + ' frozen_at equals data/ original')
+    ctx.ok(embedded.stale_after === dataFile.stale_after, 'embedded ' + key + ' stale_after equals data/ original')
+    ctx.ok(embedded.recalibrate_hint === dataFile.recalibrate_hint, 'embedded ' + key + ' recalibrate_hint equals data/ original')
+    const iso = /^\d{4}-\d{2}-\d{2}$/
+    ctx.ok(iso.test(String(dataFile.stale_after || '')) && String(dataFile.stale_after) > String(dataFile.frozen_at), key + ' stale_after is an ISO date after frozen_at')
+  }
+
   const spots = [
     ['headless-eval-pin', 'The exact value of the pin field is eval-pin-7f3a.', 1],
     ['editing-provider-value', 'The provider field should be set to spawn.', 1],

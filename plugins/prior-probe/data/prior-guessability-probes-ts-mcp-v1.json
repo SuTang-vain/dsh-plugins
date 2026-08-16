@@ -1,6 +1,8 @@
 {
   "schema_version": "prior-guessability-probes-v1",
   "frozen_at": "2026-08-14",
+  "stale_after": "2026-11-14",
+  "recalibrate_hint": "Batteries freeze the harness instruction set at frozen_at. Re-derive this battery against the current harness/target documentation and refresh frozen_at and stale_after before relying on scores taken after stale_after.",
   "target": "typescript-mcp-server-generator",
   "source": "github/awesome-copilot @ 336af71f (sha e409edb7 verified)",
   "screening_purpose": "pre-pilot gate per PRIOR_DISTANCE_MEASUREMENT_V1: predict whether the target's load-bearing content can discriminate",

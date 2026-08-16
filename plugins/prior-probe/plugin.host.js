@@ -21,6 +21,8 @@ const BATTERIES = {
     name: 'dsh-v1',
     schema_version: 'prior-guessability-probes-v1',
     frozen_at: '2026-08-14',
+    stale_after: '2026-11-14',
+    recalibrate_hint: 'Batteries freeze the harness instruction set at frozen_at. Re-derive this battery against the current harness/target documentation and refresh frozen_at and stale_after before relying on scores taken after stale_after.',
     purpose: 'General prior-knowledge battery: composition editing, preset configuration, WCAG tiering, and git conventions.',
     probes: [
       { id: 'editing-realm-group', target: 'editing-cordis-compositions', task: 'ec-01',
@@ -53,6 +55,8 @@ const BATTERIES = {
     name: 'ts-mcp-screening',
     schema_version: 'prior-guessability-probes-v1',
     frozen_at: '2026-08-14',
+    stale_after: '2026-11-14',
+    recalibrate_hint: 'Batteries freeze the harness instruction set at frozen_at. Re-derive this battery against the current harness/target documentation and refresh frozen_at and stale_after before relying on scores taken after stale_after.',
     target: 'typescript-mcp-server-generator',
     source: 'github/awesome-copilot @ 336af71f (sha e409edb7 verified)',
     purpose: 'Prior-knowledge battery over the MCP TypeScript SDK v2: transport classes, package layout, and API shape.',
@@ -94,6 +98,14 @@ function batteryOf(key) {
   return undefined
 }
 
+// Calibration freshness: 'fresh' until stale_after, 'stale' afterwards.
+// ISO date strings compare lexicographically.
+function freshnessOf(battery) {
+  if (!battery || !battery.stale_after) return 'unknown'
+  const today = new Date().toISOString().slice(0, 10)
+  return today <= battery.stale_after ? 'fresh' : 'stale'
+}
+
 return {
   name: 'dsh-prior-probe',
   apply(ctx) {
@@ -102,14 +114,14 @@ return {
 
     harness.registerTool(ctx, harness.defineTool({
       name: 'prior_probe_list',
-      description: 'List the bundled frozen prior-knowledge probe batteries: the 8-probe general battery and the 6-probe MCP TypeScript SDK battery, with their targets, prompts, grader regexes, and expected directions.',
+      description: 'List the bundled frozen prior-knowledge probe batteries: the 8-probe general battery and the 6-probe MCP TypeScript SDK battery, with their targets, prompts, grader regexes, expected directions, and calibration metadata (frozen_at, stale_after, freshness, recalibrate_hint).',
       parameters: {},
       output: { schema: { type: 'object', additionalProperties: true }, render(_a, v) { return [{ type: 'text', text: JSON.stringify(v, null, 2) }] } },
       async execute() {
         return {
           batteries: [
-            { key: 'v1', name: BATTERIES.v1.name, frozen_at: BATTERIES.v1.frozen_at, probe_count: BATTERIES.v1.probes.length, probes: BATTERIES.v1.probes.map(function (p) { return { id: p.id, target: p.target, task: p.task, expected_direction: p.expected_direction } }) },
-            { key: 'tsmcp', name: BATTERIES.tsmcp.name, frozen_at: BATTERIES.tsmcp.frozen_at, target: BATTERIES.tsmcp.target, probe_count: BATTERIES.tsmcp.probes.length, probes: BATTERIES.tsmcp.probes.map(function (p) { return { id: p.id, expected_direction: p.expected_direction } }) }
+            { key: 'v1', name: BATTERIES.v1.name, frozen_at: BATTERIES.v1.frozen_at, stale_after: BATTERIES.v1.stale_after, freshness: freshnessOf(BATTERIES.v1), recalibrate_hint: BATTERIES.v1.recalibrate_hint, probe_count: BATTERIES.v1.probes.length, probes: BATTERIES.v1.probes.map(function (p) { return { id: p.id, target: p.target, task: p.task, expected_direction: p.expected_direction } }) },
+            { key: 'tsmcp', name: BATTERIES.tsmcp.name, frozen_at: BATTERIES.tsmcp.frozen_at, stale_after: BATTERIES.tsmcp.stale_after, freshness: freshnessOf(BATTERIES.tsmcp), recalibrate_hint: BATTERIES.tsmcp.recalibrate_hint, target: BATTERIES.tsmcp.target, probe_count: BATTERIES.tsmcp.probes.length, probes: BATTERIES.tsmcp.probes.map(function (p) { return { id: p.id, expected_direction: p.expected_direction } }) }
           ]
         }
       },
@@ -140,7 +152,7 @@ return {
         })
         const scored = perProbe.filter(function (row) { return row.pass !== null })
         const batteryG = scored.length === 0 ? null : scored.reduce(function (acc, row) { return acc + row.pass }, 0) / scored.length
-        return { battery: battery.name, frozen_at: battery.frozen_at, scored: scored.length + '/' + battery.probes.length, G: batteryG, per_probe: perProbe }
+        return { battery: battery.name, frozen_at: battery.frozen_at, stale_after: battery.stale_after, freshness: freshnessOf(battery), scored: scored.length + '/' + battery.probes.length, G: batteryG, per_probe: perProbe }
       },
     }))
 

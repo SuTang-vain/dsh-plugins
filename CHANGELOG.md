@@ -21,6 +21,12 @@ All notable changes to the DSH plugin suite.
   `parse`/`json`/`file-exists` now accept the `file:` object form, and
   `pack-dry-run` accepts `args` (e.g. `[--ignore-scripts]`) for packages
   with build steps.
+- **prior-probe calibration metadata**: each battery now carries
+  `stale_after` and `recalibrate_hint` next to `frozen_at` (the calibration
+  date); `prior_probe_list` and `prior_probe_score` surface a computed
+  `freshness` (fresh/stale) so stale batteries are visible before use.
+  The kit verifies the metadata stays in sync between the embedded copy and
+  the data/ original, and that the calibration window is coherent.
 
 ## v1.6.2 (2026-08-16)
 
