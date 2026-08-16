@@ -1,3 +1,6 @@
 node_modules/
 *.log
 .DS_Store
+
+# stray clone (not part of this repo)
+plugins/evidence-dashboard/dsh-plugins/
