@@ -164,6 +164,45 @@ full-line comments and trailing ` #` comments. Indentation is **2 spaces per
 level** (tabs rejected). Anything fancier (anchors, block scalars, flow
 maps) is rejected with a line number.
 
+## Field-tested distribution formats
+
+The kit has been exercised against third-party repositories covering the
+three distribution shapes seen in the wild:
+
+1. **npm bundle** (`dsh.bundle.patch` + `cordis.patch.yml` with `- insert:`) —
+   the classic format (this repository's own plugins). Recipe:
+
+   ```yaml
+   - property: { file: package.json, path: dsh.bundle.patch, type: string }
+   - file-exists: cordis.patch.yml
+   - contains: { file: cordis.patch.yml, text: <package-name> }
+   ```
+
+2. **repository-plugin** (`.dsh-plugin/package.json` with `dsh.entry`) — the
+   official `.dsh-plugin` format; the package lives in a subdirectory, and
+   the kit's config paths simply point there:
+
+   ```yaml
+   - property: { file: .dsh-plugin/package.json, path: dsh.entry, type: string }
+   - parse: { file: .dsh-plugin/index.mjs, mode: node-check }
+   ```
+
+3. **profile snippet** (no `dsh` field; a `cordis.example.yml` fragment the
+   user pastes into their profile) — verify what exists: manifest JSON, the
+   snippet referencing the package, and the entry sources.
+
+Notes from the field:
+
+- `pack-dry-run` runs npm lifecycle scripts (`prepack`), which need
+  dependencies installed — on a cold checkout pass `args: [--ignore-scripts]`
+  or install first. (This repository's packages have no build step, so the
+  behavior never showed up here.)
+- `parse` / `json` / `file-exists` accept both the shorthand
+  (`- json: x.json`) and the object form (`- json: { file: x.json }`).
+- `node-check` runs Node's parser; modern Node (22.18+) type-strips `.ts`
+  entries for syntax checking (types are not checked — pair it with a
+  `tsc --noEmit` script for that).
+
 ## Status & roadmap
 
 Pre-1.0, iterating as an independent ecosystem package. Current shape:

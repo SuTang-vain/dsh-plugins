@@ -215,6 +215,13 @@ test('runner reports unknown check types as failures', async () => {
   assert.strictEqual(ok, false)
 })
 
+test('parse/json/file-exists accept the object form (spec.file)', async () => {
+  const ok = await runVerify(
+    'version: 1\nverify:\n  - parse:\n      file: entry.js\n      mode: node-check\n  - json:\n      file: pkg.json\n  - file-exists:\n      file: patch.yml',
+    { 'entry.js': 'export const x = 1', 'pkg.json': '{}', 'patch.yml': 'x' })
+  assert.strictEqual(ok, true)
+})
+
 Promise.all(queue).then(function () {
   console.log(failures.length === 0
     ? '\n' + passed + ' TESTS PASSED'

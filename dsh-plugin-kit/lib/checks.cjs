@@ -45,7 +45,8 @@ function walk(value, specPath) {
 
 const checks = {
   parse: async (ctx, spec) => {
-    const file = spec.parse
+    const file = spec.file || spec.parse
+    if (!file) fail('parse needs a file')
     const mode = spec.mode
     if (mode !== 'function-body' && mode !== 'node-check') fail('parse.mode must be "function-body" or "node-check": ' + file)
     if (mode === 'function-body') {
@@ -62,7 +63,8 @@ const checks = {
   },
 
   json: async (ctx, spec) => {
-    const file = spec.json
+    const file = spec.file || spec.json
+    if (!file) fail('json needs a file')
     try {
       JSON.parse(read(ctx.root, file))
       return [{ pass: true, message: 'json parses: ' + file }]
@@ -79,7 +81,8 @@ const checks = {
   },
 
   'file-exists': async (ctx, spec) => {
-    const file = spec['file-exists']
+    const file = spec.file || spec['file-exists']
+    if (!file) fail('file-exists needs a file')
     return [{ pass: fs.existsSync(abs(ctx.root, file)), message: 'file exists: ' + file }]
   },
 
@@ -136,7 +139,8 @@ const checks = {
   'pack-dry-run': async (ctx, spec) => {
     const dir = spec.dir || spec['pack-dry-run']
     if (!dir) fail('pack-dry-run needs a dir (or use the shorthand form)')
-    const result = spawnSync('npm', ['pack', '--dry-run', '--json'], { cwd: path.join(ctx.root, dir), encoding: 'utf8' })
+    const args = ['pack', '--dry-run', '--json'].concat(Array.isArray(spec.args) ? spec.args : [])
+    const result = spawnSync('npm', args, { cwd: path.join(ctx.root, dir), encoding: 'utf8' })
     let extra = ''
     if (result.status === 0) {
       try {

@@ -15,6 +15,12 @@ All notable changes to the DSH plugin suite.
   walker, generator round-trip, runner end-to-end), the kit now pack-checks
   itself, CI runs the self-test, and the README documents the status/roadmap
   and the relationship to the upstream `dsh plugin` forwarder.
+- **dsh-plugin-kit field test**: exercised against three third-party
+  repositories in the wild (npm-bundle / official `.dsh-plugin`
+  repository-plugin / profile-snippet formats, 14/15 checks green); fixes:
+  `parse`/`json`/`file-exists` now accept the `file:` object form, and
+  `pack-dry-run` accepts `args` (e.g. `[--ignore-scripts]`) for packages
+  with build steps.
 
 ## v1.6.2 (2026-08-16)
 
