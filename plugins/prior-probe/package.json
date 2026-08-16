@@ -1,12 +1,22 @@
 {
   "name": "dsh-prior-probe",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Frozen probe-battery tools for DeepSeek Harness: list batteries, offline deterministic regex scoring, and no-harness single-shot probing via any OpenAI-compatible endpoint.",
   "type": "module",
   "main": "index.js",
-  "files": ["index.js", "cordis.patch.yml", "data/"],
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "data/"
+  ],
   "license": "MIT",
-  "keywords": ["dsh", "deepseek-harness", "plugin", "probe", "evaluation"],
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "probe",
+    "evaluation"
+  ],
   "dependencies": {
     "@deepseek-ai/dsh-tools": "0.1.0-rc.6",
     "@deepseek-ai/cordis": "^4.0.1",

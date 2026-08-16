@@ -2,6 +2,12 @@
 
 All notable changes to the DSH plugin suite.
 
+## v1.5.1 (2026-08-16)
+
+- repository renamed to **dsh-self-harness-tools** (npm package names
+  unchanged); dashboard titles, version-tree label, overview title, and
+  README install paths now use the new suite name.
+
 ## v1.5 (2026-08-16)
 
 - **prior-probe**: now an official DSH **bundle** — `package.json` declares

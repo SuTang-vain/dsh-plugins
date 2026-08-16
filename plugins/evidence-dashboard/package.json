@@ -1,12 +1,23 @@
 {
   "name": "dsh-evidence-dashboard",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Archive dashboard for DeepSeek Harness: components, design decisions, rejected options, and a version tree with changelog timeline.",
   "type": "module",
   "main": "index.js",
-  "files": ["index.js", "cordis.patch.yml", "lib/", "data/"],
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "lib/",
+    "data/"
+  ],
   "license": "MIT",
-  "keywords": ["dsh", "deepseek-harness", "plugin", "dashboard", "archive"],
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "dashboard",
+    "archive"
+  ],
   "exports": {
     ".": "./index.js",
     "./client": "./lib/client.js",
