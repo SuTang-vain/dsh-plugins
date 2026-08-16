@@ -86,7 +86,8 @@ const versionsGraph = read('plugins/evidence-dashboard/data/versions.json')
 const versionNodes = versionsGraph.branches.reduce((acc, b) => acc + (b.nodes || []).length, 0)
 ok(versionsGraph.schema_version === 'version-graph-v1', 'version graph schema is v1')
 ok(versionsGraph.branches.length === 1, 'version graph has 1 branch')
-ok(versionNodes === 12, 'version graph has 12 nodes')
+ok(versionNodes === 13, 'version graph has 13 nodes')
+ok(versionsGraph.branches[0].head === 'v1.6.2', 'version graph head is v1.6.2')
 for (const branch of versionsGraph.branches) for (const node of branch.nodes) {
   ok(typeof node.id === 'string' && typeof node.kind === 'string' && typeof node.summary === 'string', 'version node well-formed: ' + node.id)
   for (const parentId of (node.parents || [])) {
@@ -97,6 +98,8 @@ const v140 = versionsGraph.branches[0].nodes.find((n) => n.id === 'v1.4.0')
 ok(v140 && v140.parents.length === 2 && v140.parents[0] === 'v1.4.0-rc' && v140.parents[1] === 'v1.3.1', 'v1.4.0 renders as a merge of the release candidate and the v1.3.1 hotfix')
 const v160 = versionsGraph.branches[0].nodes.find((n) => n.id === 'v1.6.0')
 ok(v160 && v160.parents.length === 2 && v160.parents[0] === 'v1.6.0-rc' && v160.parents[1] === 'v1.5.1', 'v1.6.0 renders as a merge of the release candidate and the v1.5.1 hotfix')
+const v162 = versionsGraph.branches[0].nodes.find((n) => n.id === 'v1.6.2')
+ok(v162 && v162.parents.length === 1 && v162.parents[0] === 'v1.6.1', 'v1.6.2 continues linearly from v1.6.1')
 
 // Embedded batteries must equal the data/ originals
 const hostSrc = fs.readFileSync(path.join(root, 'plugins/prior-probe/plugin.host.js'), 'utf8')

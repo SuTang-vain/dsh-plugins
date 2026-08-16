@@ -1,12 +1,14 @@
-// dsh-evidence-dashboard — Client half (dynamic variant), v1.6.1 "Release Cockpit".
+// dsh-evidence-dashboard — Client half (dynamic variant), v1.6.2 "Release Cockpit".
 // Registered in two additive slots:
 //   tool.view.cordis (key 'self')  — inside this Package's latest run card
 //   settings.section (dsh-evidence) — a full settings page for later browsing
 // All data arrives over Package-private RPC from the Host half.
 //
-// v1.6.1: self-contained EN/中文 language toggle (defaults to the browser
-// language), monochrome inline SVG icons, KPI stat cards, interactive
-// git-tree, filter chips, expandable changelog, skeleton/fade/empty states.
+// v1.6.2: horizontal release-history timeline (SVG; forks/merges arc above
+// the main line, node click opens an inline detail) and a unified, simplified
+// visual language (accent bars removed, flat cards everywhere).
+// Earlier: self-contained EN/中文 toggle, monochrome SVG icons, KPI cards,
+// filter chips, expandable changelog, skeleton/fade/empty states.
 
 const STYLES = [
   '.dsh-wrap { font-size: 13px; line-height: 1.5; color: var(--dsw-alias-label-primary, inherit); max-width: 860px; }',
@@ -52,49 +54,19 @@ const STYLES = [
   '.dsh-chips-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }',
   '.dsh-chip-btn { background: transparent; border: 1px solid var(--dsw-alias-border-l2, rgba(128,128,128,0.4)); border-radius: 999px; padding: 1px 10px; cursor: pointer; font-size: 11px; color: inherit; }',
   '.dsh-chip-btn-active { border-color: var(--dsw-alias-brand-primary, #48e); font-weight: 600; }',
-  '.dsh-accent-ok { border-left: 3px solid var(--dsw-alias-state-success-primary, #3a5); }',
-  '.dsh-accent-bad { border-left: 3px solid var(--dsw-alias-state-error-primary, #d05); }',
-  '.dsh-accent-mid { border-left: 3px solid var(--dsw-alias-state-warn-primary, #d90); }',
-  // git-tree styles
+  // horizontal version-tree styles
   '.dsh-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 11px; color: var(--dsw-alias-label-secondary, inherit); }',
   '.dsh-legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }',
-  '.dsh-gh-branch-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }',
-  '.dsh-gh-branch { border-left: 3px solid var(--dsw-alias-brand-primary, #48e); }',
-  '.dsh-gh-branch-btn { display: inline-flex; align-items: center; background: transparent; border: none; color: inherit; cursor: pointer; padding: 0; font-size: 13px; }',
+  '.dsh-gh-branch-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }',
   '.dsh-chevron { color: var(--dsw-alias-label-secondary, inherit); margin-right: 4px; }',
-  '.dsh-gh-list { display: flex; flex-direction: column; }',
-  '.dsh-gh-row { display: flex; gap: 10px; align-items: stretch; }',
-  '.dsh-gh-node-row { cursor: pointer; }',
-  '.dsh-gh-node-row:hover { background: var(--dsw-alias-bg-layer-1, rgba(128,128,128,0.08)); border-radius: 8px; }',
-  '.dsh-gh-selected { background: var(--dsw-alias-bg-layer-1, rgba(128,128,128,0.1)); border-radius: 8px; }',
-  '.dsh-gh-connector { height: 13px; }',
-  '.dsh-gh-cells { display: flex; flex: none; }',
-  '.dsh-cell { position: relative; width: 16px; }',
-  '.dsh-c-v { position: absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: var(--dsw-alias-border-l2, rgba(128,128,128,0.6)); }',
-  '.dsh-c-vtop { position: absolute; left: 7px; top: 0; height: 50%; width: 2px; background: var(--dsw-alias-border-l2, rgba(128,128,128,0.6)); }',
-  '.dsh-c-stub-r { position: absolute; left: 8px; right: 0; top: 50%; height: 2px; margin-top: -1px; background: var(--dsw-alias-border-l2, rgba(128,128,128,0.6)); }',
-  '.dsh-c-stub-l { position: absolute; left: 0; right: 8px; top: 50%; height: 2px; margin-top: -1px; background: var(--dsw-alias-border-l2, rgba(128,128,128,0.6)); }',
-  '.dsh-c-hline { position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; background: var(--dsw-alias-border-l2, rgba(128,128,128,0.6)); }',
-  '.dsh-gh-dot { position: absolute; left: 2px; top: 2px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--dsw-alias-border-l2, rgba(128,128,128,0.7)); box-shadow: 0 0 0 2px var(--dsw-alias-bg-base, transparent); z-index: 1; }',
-  '.dsh-gh-initial { background: var(--dsw-alias-label-secondary, #888); }',
-  '.dsh-gh-hotfix { background: var(--dsw-alias-state-warn-primary, #d90); }',
-  '.dsh-gh-prerelease { background: var(--dsw-alias-brand-primary, #48e); }',
-  '.dsh-gh-release { background: var(--dsw-alias-state-success-primary, #3a5); }',
-  '.dsh-gh-reverted { background: var(--dsw-alias-state-error-primary, #d05); }',
-  '.dsh-gh-eol { background: var(--dsw-alias-state-warn-primary, #d90); }',
-  '.dsh-gh-label { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 700; font-size: 12.5px; margin-right: 8px; }',
-  '.dsh-gh-hash { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; color: var(--dsw-alias-label-secondary, inherit); margin-right: 8px; }',
-  '.dsh-gh-kind { font-size: 11px; margin-right: 8px; padding: 0 6px; border-radius: 8px; border: 1px solid var(--dsw-alias-border-l2, rgba(128,128,128,0.5)); color: var(--dsw-alias-label-secondary, inherit); }',
-  '.dsh-gh-kind-initial { color: var(--dsw-alias-label-secondary, #888); border-color: currentColor; }',
-  '.dsh-gh-kind-hotfix { color: var(--dsw-alias-state-warn-primary, #d90); border-color: currentColor; }',
-  '.dsh-gh-kind-prerelease { color: var(--dsw-alias-brand-primary, #48e); border-color: currentColor; }',
-  '.dsh-gh-kind-release { color: var(--dsw-alias-state-success-primary, #3a5); border-color: currentColor; }',
-  '.dsh-gh-kind-reverted { color: var(--dsw-alias-state-error-primary, #d05); border-color: currentColor; }',
-  '.dsh-gh-kind-eol { color: var(--dsw-alias-state-warn-primary, #d90); border-color: currentColor; }',
+  '.dsh-tree-scroll { overflow-x: auto; padding-bottom: 4px; }',
+  '.dsh-tree { display: block; }',
+  '.dsh-tree line, .dsh-tree path { stroke: var(--dsw-alias-border-l2, rgba(128,128,128,0.6)); stroke-width: 2; fill: none; }',
+  '.dsh-tree text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 10.5px; fill: var(--dsw-alias-label-primary, inherit); }',
+  '.dsh-tree circle { stroke: var(--dsw-alias-border-l2, rgba(128,128,128,0.7)); stroke-width: 1.5; cursor: pointer; }',
+  '.dsh-tree-ring { fill: none; stroke: var(--dsw-alias-brand-primary, #48e); stroke-width: 1.5; cursor: pointer; }',
   '.dsh-gh-note { font-size: 11px; font-style: italic; color: var(--dsw-alias-label-secondary, inherit); }',
-  '.dsh-gh-body { padding-bottom: 10px; }',
-  '.dsh-gh-row:last-child .dsh-gh-body { padding-bottom: 0; }',
-  '.dsh-gh-detail { margin: 2px 0 8px 26px; border-left: 3px solid var(--dsw-alias-brand-primary, #48e); padding: 6px 10px; background: var(--dsw-alias-bg-layer-1, rgba(128,128,128,0.06)); border-radius: 8px; }',
+  '.dsh-gh-detail { margin-top: 8px; padding: 6px 10px; background: var(--dsw-alias-bg-layer-1, rgba(128,128,128,0.06)); border-radius: 8px; }',
   // changelog timeline styles
   '.dsh-ch-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; background: var(--dsw-alias-state-success-primary, #3a5); }',
   '.dsh-ch-version-btn { display: inline-flex; align-items: center; background: transparent; border: none; color: inherit; cursor: pointer; padding: 0; font-weight: 600; font-size: 13px; }',
@@ -219,8 +191,6 @@ const T = {
     root: '(root)',
     kind: 'kind',
     noNotes: 'No additional notes.',
-    collapse: 'Collapse branch',
-    expand: 'Expand branch',
     refreshTitle: 'Refresh data',
     langSwitch: '中文'
   },
@@ -248,8 +218,6 @@ const T = {
     root: '(根)',
     kind: '类型',
     noNotes: '无附加说明。',
-    collapse: '折叠分支',
-    expand: '展开分支',
     refreshTitle: '刷新数据',
     langSwitch: 'EN'
   }
@@ -268,12 +236,6 @@ function matches(query, fields) {
   if (!query) return true
   const hay = fields.join(' ').toLowerCase()
   return hay.indexOf(query.toLowerCase()) !== -1
-}
-
-function accentClass(value) {
-  if (value === 'adopted' || value === 'release') return 'dsh-accent-ok'
-  if (value === 'rejected' || value === 'reverted') return 'dsh-accent-bad'
-  return 'dsh-accent-mid'
 }
 
 function StatCards(props) {
@@ -320,7 +282,7 @@ function OverviewView(props) {
   if (!d) return null
   const columns = ['Component', 'Category', 'Status']
   return React.createElement('div', { className: 'dsh-stack' },
-    d.highlights ? React.createElement('div', { className: 'dsh-card dsh-accent-ok' },
+    d.highlights ? React.createElement('div', { className: 'dsh-card' },
       React.createElement(H3, { icon: 'sparkle', text: t.sections.highlights + ' — ' + d.highlights.title }),
       React.createElement('ul', { style: { margin: '4px 0' } },
         (d.highlights.points || []).map(function (o) { return React.createElement('li', { key: o, className: 'dsh-li' }, o) }))) : null,
@@ -379,7 +341,7 @@ function DecisionsView(props) {
       })),
     React.createElement('div', { className: 'dsh-sub' }, t.schema + ' ' + d.schema_version + ' · ' + t.showing + ' ' + filtered.length + '/' + entries.length + ' ' + t.entries),
     filtered.length === 0 ? React.createElement(EmptyState, { text: t.empty }) : filtered.map(function (e) {
-      return React.createElement('div', { key: e.id, className: 'dsh-card ' + accentClass(e.claim_level) },
+      return React.createElement('div', { key: e.id, className: 'dsh-card' },
         React.createElement('div', null,
           React.createElement('b', null, e.id), ' ',
           React.createElement('span', { className: 'dsh-badge' }, e.claim_level || '—')),
@@ -415,7 +377,7 @@ function RejectedView(props) {
       })),
     React.createElement('div', { className: 'dsh-sub' }, t.schema + ' ' + d.schema_version + ' · ' + t.showing + ' ' + filtered.length + '/' + entries.length + ' ' + t.records),
     filtered.length === 0 ? React.createElement(EmptyState, { text: t.empty }) : filtered.map(function (e) {
-      return React.createElement('div', { key: e.id, className: 'dsh-card ' + accentClass(e.lineage_decision) },
+      return React.createElement('div', { key: e.id, className: 'dsh-card' },
         React.createElement('div', null,
           React.createElement('b', null, e.id), ' — ',
           React.createElement('span', { className: 'dsh-badge' }, e.lineage_decision || 'recorded'),
@@ -427,10 +389,20 @@ function RejectedView(props) {
     }))
 }
 
-// Lane-based git-graph layout: assigns each node a lane, extends lane lives
-// along cross-lane edges, and emits node rows plus connector rows carrying
-// fork (corner + right/left stub) and merge (line-end + stub) cells.
-function buildBranchRows(branch) {
+// Horizontal git-graph layout: the same lane assignment as a vertical graph,
+// but time flows left → right along a horizontal main line and fork/merge
+// edges arc above/below it. Returns SVG-ready geometry: per-edge descriptors,
+// per-node coordinates, and the canvas size.
+const KIND_FILL = {
+  initial: 'var(--dsw-alias-label-secondary, #888)',
+  hotfix: 'var(--dsw-alias-state-warn-primary, #d90)',
+  prerelease: 'var(--dsw-alias-brand-primary, #48e)',
+  release: 'var(--dsw-alias-state-success-primary, #3a5)',
+  reverted: 'var(--dsw-alias-state-error-primary, #d05)',
+  eol: 'var(--dsw-alias-state-warn-primary, #d90)'
+}
+
+function buildHorizontalTree(branch) {
   const nodes = branch.nodes
   const indexById = {}
   nodes.forEach(function (n, i) { indexById[n.id] = i })
@@ -447,152 +419,106 @@ function buildBranchRows(branch) {
     lanes[chosen].head = node.id
     laneOf[node.id] = chosen
   }
+  const COL_GAP = 64
+  const LANE_GAP = 34
+  const PAD_X = 26
+  const PAD_Y = 8
+  const R = 6
+  const mainY = 22
   const laneCount = lanes.length
-  const aliveFrom = new Array(laneCount).fill(-1)
-  const aliveTo = new Array(laneCount).fill(-1)
-  nodes.forEach(function (n, i) {
-    const l = laneOf[n.id]
-    if (aliveFrom[l] === -1 || i < aliveFrom[l]) aliveFrom[l] = i
-    if (aliveTo[l] === -1 || i > aliveTo[l]) aliveTo[l] = i
-  })
-  for (const child of nodes) {
-    const parents = child.parents || []
-    for (const p of parents) {
-      const lp = laneOf[p]
-      const lc = laneOf[child.id]
-      if (lp === undefined || lc === undefined || lp === lc) continue
-      const pIndex = indexById[p]
-      const cIndex = indexById[child.id]
-      if (pIndex < aliveFrom[lc]) aliveFrom[lc] = pIndex
-      if (cIndex > aliveTo[lp]) aliveTo[lp] = cIndex
-    }
+  const yRaw = function (lane) {
+    if (lane === 0) return mainY
+    const k = Math.ceil(lane / 2)
+    return lane % 2 === 1 ? mainY - k * LANE_GAP : mainY + k * LANE_GAP
   }
-  const aliveAt = function (L, i) { return aliveFrom[L] <= i && i < aliveTo[L] }
-  const cellFor = function (L, i, override) {
-    if (override !== undefined) return override
-    if (aliveAt(L, i)) return { kind: 'vline' }
-    return { kind: 'empty' }
+  let minY = mainY
+  let maxY = mainY
+  for (let l = 0; l < laneCount; l++) {
+    const y = yRaw(l)
+    if (y < minY) minY = y
+    if (y > maxY) maxY = y
   }
-  const rows = []
+  const shiftY = PAD_Y - minY
+  const yFor = function (lane) { return yRaw(lane) + shiftY }
+  const xFor = function (i) { return PAD_X + i * COL_GAP }
+  const width = PAD_X * 2 + Math.max(nodes.length - 1, 0) * COL_GAP
+  const height = (maxY - minY) + PAD_Y + 26
+  const elements = []
   nodes.forEach(function (node, i) {
-    // merge connectors: each non-first parent in another lane merges just before this row
-    const parents = node.parents || []
-    for (let pj = 1; pj < parents.length; pj++) {
-      const p = parents[pj]
-      const lp = laneOf[p]
-      const lc = laneOf[node.id]
-      if (lp === undefined || lp === lc) continue
-      const cells = []
-      for (let L = 0; L < laneCount; L++) {
-        if (L === lp) cells.push({ kind: lc > lp ? 'corner-merge-r' : 'corner-merge-l' })
-        else if ((lc < L && L < lp) || (lp < L && L < lc)) cells.push({ kind: 'hline' })
-        else cells.push(cellFor(L, i - 1))
+    const l = laneOf[node.id]
+    const y = yFor(l)
+    const cx = xFor(i)
+    for (const p of node.parents || []) {
+      const pl = laneOf[p]
+      if (pl === undefined) continue
+      const py = yFor(pl)
+      const px = xFor(indexById[p])
+      if (pl === l) {
+        elements.push({ tag: 'line', key: p + '→' + node.id, props: { x1: px + R, y1: y, x2: cx - R, y2: y } })
+      } else {
+        elements.push({ tag: 'path', key: p + '→' + node.id, props: { d: 'M ' + (px + R) + ' ' + py + ' V ' + y + ' H ' + (cx - R) } })
       }
-      rows.push({ kind: 'connector', cells: cells })
-    }
-    // this node's row
-    const cells = []
-    for (let L = 0; L < laneCount; L++) {
-      if (laneOf[node.id] === L) cells.push({ kind: 'dot', node: node, below: aliveAt(L, i) })
-      else cells.push(cellFor(L, i))
-    }
-    rows.push({ kind: 'node', cells: cells, node: node })
-    // fork connectors: each child whose first parent is this node and whose lane differs
-    for (const child of nodes) {
-      const childParents = child.parents || []
-      if (childParents.length === 0 || childParents[0] !== node.id) continue
-      const lc = laneOf[child.id]
-      const lp = laneOf[node.id]
-      if (lp === lc) continue
-      const cells = []
-      for (let L = 0; L < laneCount; L++) {
-        if (L === lp) cells.push({ kind: lc > lp ? 'corner-fork-r' : 'corner-fork-l' })
-        else if ((lp < L && L < lc) || (lc < L && L < lp)) cells.push({ kind: 'hline' })
-        else cells.push(cellFor(L, i))
-      }
-      rows.push({ kind: 'connector', cells: cells })
     }
   })
-  return { rows: rows, laneCount: laneCount }
-}
-
-function GraphCell(props) {
-  const cell = props.cell
-  if (cell.kind === 'empty') return React.createElement('div', { className: 'dsh-cell' })
-  if (cell.kind === 'vline') return React.createElement('div', { className: 'dsh-cell' }, React.createElement('span', { className: 'dsh-c-v' }))
-  if (cell.kind === 'hline') return React.createElement('div', { className: 'dsh-cell' }, React.createElement('span', { className: 'dsh-c-hline' }))
-  if (cell.kind === 'corner-fork-r') return React.createElement('div', { className: 'dsh-cell' }, React.createElement('span', { className: 'dsh-c-v' }), React.createElement('span', { className: 'dsh-c-stub-r' }))
-  if (cell.kind === 'corner-fork-l') return React.createElement('div', { className: 'dsh-cell' }, React.createElement('span', { className: 'dsh-c-v' }), React.createElement('span', { className: 'dsh-c-stub-l' }))
-  if (cell.kind === 'corner-merge-r') return React.createElement('div', { className: 'dsh-cell' }, React.createElement('span', { className: 'dsh-c-vtop' }), React.createElement('span', { className: 'dsh-c-stub-r' }))
-  if (cell.kind === 'corner-merge-l') return React.createElement('div', { className: 'dsh-cell' }, React.createElement('span', { className: 'dsh-c-vtop' }), React.createElement('span', { className: 'dsh-c-stub-l' }))
-  if (cell.kind === 'dot') {
-    const node = cell.node
-    return React.createElement('div', { className: 'dsh-cell' },
-      React.createElement('span', { className: cell.below ? 'dsh-c-v' : 'dsh-c-vtop' }),
-      React.createElement('span', { className: 'dsh-gh-dot dsh-gh-' + node.kind }))
-  }
-  return React.createElement('div', { className: 'dsh-cell' })
+  return { nodes: nodes, laneOf: laneOf, xFor: xFor, yFor: yFor, width: width, height: height, elements: elements }
 }
 
 const LEGEND_KINDS = ['initial', 'hotfix', 'prerelease', 'release', 'reverted', 'eol']
 
-function GitTreeView(props) {
+function HorizontalTreeView(props) {
   const d = props.data
   const t = props.t
   if (!d) return null
   const selected = props.selected
+  const treeCard = function (branch) {
+    const layout = buildHorizontalTree(branch)
+    const selectedNode = selected && selected.branch === branch.id
+      ? branch.nodes.find(function (n) { return n.id === selected.node })
+      : null
+    const detail = selectedNode ? React.createElement('div', { className: 'dsh-gh-detail' },
+      React.createElement('div', { className: 'dsh-muted' },
+        t.parents + ': ' + ((selectedNode.parents && selectedNode.parents.length) ? selectedNode.parents.join(' ← ') : t.root)),
+      React.createElement('div', { className: 'dsh-gh-note' }, selectedNode.note || t.noNotes),
+      React.createElement('div', { className: 'dsh-muted' },
+        t.kind + ': ' + selectedNode.kind + (selectedNode.promoted_at ? ' · ' + selectedNode.promoted_at : ''))) : null
+    const circles = layout.nodes.map(function (node, i) {
+      const x = layout.xFor(i)
+      const y = layout.yFor(layout.laneOf[node.id])
+      const isSelected = selectedNode && selectedNode.id === node.id
+      const parts = [
+        React.createElement('title', { key: 'tt' + node.id }, node.summary),
+        React.createElement('circle', {
+          key: 'dot' + node.id,
+          cx: x, cy: y, r: 6,
+          fill: KIND_FILL[node.kind] || KIND_FILL.initial,
+          onClick: function () { props.onSelectNode(branch.id, node.id) }
+        }),
+        React.createElement('text', { key: 'lb' + node.id, x: x, y: y + 18, textAnchor: 'middle' }, node.label || node.id)
+      ]
+      if (isSelected) parts.push(React.createElement('circle', { key: 'ring' + node.id, className: 'dsh-tree-ring', cx: x, cy: y, r: 9.5 }))
+      return parts
+    })
+    const lines = layout.elements.map(function (el) {
+      return React.createElement(el.tag, Object.assign({ key: el.key }, el.props))
+    })
+    const svg = React.createElement('svg', { className: 'dsh-tree', width: layout.width, height: layout.height, viewBox: '0 0 ' + layout.width + ' ' + layout.height, role: 'img' }, lines, circles)
+    return React.createElement('div', { key: branch.id, className: 'dsh-card' },
+      React.createElement('div', { className: 'dsh-gh-branch-head' },
+        React.createElement('b', null, branch.label),
+        React.createElement('span', { className: 'dsh-muted' }, branch.track),
+        React.createElement('span', { className: 'dsh-badge' }, t.head + ': ' + branch.head)),
+      React.createElement('div', { className: 'dsh-tree-scroll' }, svg),
+      detail)
+  }
   return React.createElement('div', { className: 'dsh-stack' },
     React.createElement('div', { className: 'dsh-sub' }, t.schema + ' ' + d.schema_version + ' · ' + t.updated + ' ' + d.updated_at + ' — ' + d.provenance),
     React.createElement('div', { className: 'dsh-legend' },
       LEGEND_KINDS.map(function (kind) {
         return React.createElement('span', { key: kind },
-          React.createElement('span', { className: 'dsh-legend-dot dsh-gh-' + kind }),
+          React.createElement('span', { className: 'dsh-legend-dot', style: { background: KIND_FILL[kind] } }),
           t.legend[kind] || kind)
       })),
-    (d.branches || []).map(function (branch) {
-      const collapsed = props.collapsed && props.collapsed[branch.id]
-      const graph = buildBranchRows(branch)
-      return React.createElement('div', { key: branch.id, className: 'dsh-card dsh-gh-branch' },
-        React.createElement('div', { className: 'dsh-gh-branch-head' },
-          React.createElement('button', { className: 'dsh-gh-branch-btn', onClick: function () { props.onToggleBranch(branch.id) }, title: collapsed ? t.expand : t.collapse },
-            React.createElement('span', { className: 'dsh-chevron' }, collapsed ? '▸' : '▾'),
-            React.createElement('b', null, branch.label)),
-          React.createElement('span', { className: 'dsh-muted' }, branch.track),
-          React.createElement('span', { className: 'dsh-badge' }, t.head + ': ' + branch.head)),
-        collapsed ? null : React.createElement('div', { className: 'dsh-gh-list' },
-          graph.rows.map(function (row, ri) {
-            if (row.kind === 'connector') {
-              return React.createElement('div', { key: 'c' + ri, className: 'dsh-gh-row dsh-gh-connector' },
-                React.createElement('div', { className: 'dsh-gh-cells' },
-                  row.cells.map(function (cell, ci) { return React.createElement(GraphCell, { key: ci, cell: cell }) })),
-                React.createElement('div', { className: 'dsh-gh-body' }))
-            }
-            const node = row.node
-            const isSelected = selected && selected.branch === branch.id && selected.node === node.id
-            const rendered = [React.createElement('div', {
-              key: node.id,
-              className: 'dsh-gh-row dsh-gh-node-row' + (isSelected ? ' dsh-gh-selected' : ''),
-              onClick: function () { props.onSelectNode(branch.id, node.id) },
-              title: node.summary
-            },
-              React.createElement('div', { className: 'dsh-gh-cells' },
-                row.cells.map(function (cell, ci) { return React.createElement(GraphCell, { key: ci, cell: cell }) })),
-              React.createElement('div', { className: 'dsh-gh-body' },
-                React.createElement('div', null,
-                  React.createElement('span', { className: 'dsh-gh-label' }, node.label || node.id),
-                  node.sha256 ? React.createElement('span', { className: 'dsh-gh-hash' }, node.sha256) : null,
-                  React.createElement('span', { className: 'dsh-gh-kind dsh-gh-kind-' + node.kind }, node.kind),
-                  node.promoted_at ? React.createElement('span', { className: 'dsh-gh-kind' }, node.promoted_at) : null),
-                React.createElement('div', { className: 'dsh-muted' }, node.summary)))]
-            if (isSelected) {
-              rendered.push(React.createElement('div', { key: node.id + '-detail', className: 'dsh-gh-detail' },
-                React.createElement('div', { className: 'dsh-muted' }, t.parents + ': ' + ((node.parents && node.parents.length) ? node.parents.join(' ← ') : t.root)),
-                React.createElement('div', { className: 'dsh-gh-note' }, node.note || t.noNotes),
-                React.createElement('div', { className: 'dsh-muted' }, t.kind + ': ' + node.kind)))
-            }
-            return rendered
-          })))
-    }))
+    (d.branches || []).map(treeCard))
 }
 
 function ChangelogView(props) {
@@ -649,13 +575,11 @@ function VersionsView(props) {
   return React.createElement('div', { className: 'dsh-stack' },
     React.createElement('div', null,
       React.createElement(H3, { icon: 'branch', text: t.sections.history }),
-      React.createElement(GitTreeView, {
+      React.createElement(HorizontalTreeView, {
         data: d.versions,
         t: t,
         selected: props.selected,
-        onSelectNode: props.onSelectNode,
-        collapsed: props.collapsed,
-        onToggleBranch: props.onToggleBranch
+        onSelectNode: props.onSelectNode
       })),
     React.createElement('div', null,
       React.createElement(H3, { icon: 'doc', text: t.sections.changelog }),
@@ -670,7 +594,6 @@ function Dashboard(props) {
   const [meta, setMeta] = React.useState(null)
   const [reloadKey, setReloadKey] = React.useState(0)
   const [selected, setSelected] = React.useState(null)
-  const [collapsed, setCollapsed] = React.useState({})
   const [lang, setLang] = React.useState(detectLang)
 
   const t = T[lang] || T.en
@@ -717,15 +640,6 @@ function Dashboard(props) {
     })
   }
 
-  const toggleBranch = function (branch) {
-    setCollapsed(function (prev) {
-      const next = Object.assign({}, prev)
-      if (next[branch]) delete next[branch]
-      else next[branch] = true
-      return next
-    })
-  }
-
   const tabs = (meta && meta.datasets) ? meta.datasets : TAB_META
   const showSearch = tab === 'evidence' || tab === 'conflicts'
 
@@ -739,7 +653,7 @@ function Dashboard(props) {
           tab === 'overview'
             ? React.createElement(OverviewView, { data: data, t: t })
             : tab === 'versions'
-              ? React.createElement(VersionsView, { data: data, t: t, selected: selected, onSelectNode: selectNode, collapsed: collapsed, onToggleBranch: toggleBranch })
+              ? React.createElement(VersionsView, { data: data, t: t, selected: selected, onSelectNode: selectNode })
               : React.createElement('div', { className: 'dsh-stack' },
                   showSearch ? React.createElement('div', null,
                     React.createElement('input', { className: 'dsh-input', placeholder: t.filter, value: query, onChange: function (e) { setQuery(e.target.value) } })) : null,

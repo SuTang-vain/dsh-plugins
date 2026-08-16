@@ -25,8 +25,9 @@ node verify.js        # parse + JSON + counts + byte-equality + regex spot check
 - `dsh-prior-probe` embeds its batteries: after editing the batteries, keep
   `index.js` (bundle) and `plugin.host.js` (dynamic) in sync — `verify.js`
   byte-checks `plugin.host.js` against `data/`; check `index.js` too.
-- The dashboard client bundle `lib/client.js` is **pre-built by hand**: there
-  is no build step. Edit it directly, then run
+- The dashboard client bundle `lib/client.js` is **generated** from the
+  dynamic variant — never hand-edit it. After changing `plugin.client.js`, run
+  `node plugins/evidence-dashboard/tools/gen-bundle.cjs`, then
   `node --check plugins/evidence-dashboard/lib/client.js`.
 
 ## Local install test / 本地安装测试
@@ -55,6 +56,7 @@ The `link:` install path does not resolve dependencies — always test the
 2. **Verify and pack-check**:
 
    ```sh
+   node plugins/evidence-dashboard/tools/gen-bundle.cjs  # regenerate lib/client.js
    node verify.js
    cd plugins/prior-probe && pnpm pack && rm dsh-prior-probe-*.tgz && cd ../..
    cd plugins/evidence-dashboard && pnpm pack && rm dsh-evidence-dashboard-*.tgz && cd ../..

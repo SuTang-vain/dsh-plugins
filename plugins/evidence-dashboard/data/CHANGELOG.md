@@ -2,6 +2,20 @@
 
 All notable changes to the DSH plugin suite.
 
+## v1.6.2 (2026-08-16)
+
+- **evidence-dashboard horizontal release history**: the Versions tab now
+  renders the git-tree as a horizontal SVG timeline — time flows left to
+  right along the main line, forks and merges arc above/below it, node
+  labels sit under their dots, hovering shows a native tooltip, and clicking
+  a node opens its detail card under the tree.
+- **unified simplified UI**: colored accent bars and branch markers removed;
+  one flat card style across overview, decisions, rejected options, and
+  versions.
+- `tools/gen-bundle.cjs` added to regenerate the official web bundle from the
+  dynamic variant (the two now share the same UI source).
+- `data/versions.json` extended with the v1.6.2 node (13 nodes).
+
 ## v1.6.1 (2026-08-16)
 
 - **evidence-dashboard i18n**: self-contained EN/中文 language toggle in the
