@@ -82,6 +82,24 @@ or from a packed tarball. See each plugin README for details.
 | What changed in each release | [`CHANGELOG.md`](CHANGELOG.md) |
 | See the version tree rendered in the dashboard | Versions tab (v1.0 → v1.6.2) |
 
+## Evidence / 效用证据
+
+Utility data, not promises — what the pieces demonstrably do:
+
+- **dsh-plugin-kit**: 14/15 checks green across three third-party
+  repositories with three different distribution shapes (npm bundle /
+  official `.dsh-plugin` / profile snippet); the kit also runs 82 checks in
+  this repository's own CI. See [`docs/kit-field-test.md`](docs/kit-field-test.md).
+- **dsh-prior-probe**: a deterministic offline demo produced by the shipped
+  scoring code ships at
+  [`plugins/prior-probe/data/example-score-run.json`](plugins/prior-probe/data/example-score-run.json)
+  (5/8 scored, G=0.8, low-direction flags visible); live endpoint runs use
+  `prior_probe_run` with your own credentials.
+- **dsh-evidence-dashboard**: renders this repository's own release history,
+  and the schema is demonstrated on a third-party project's real data —
+  the six npm publishes of `@deepseek-ai/dsh` in
+  [`plugins/evidence-dashboard/data/examples/versions-dsh-official.json`](plugins/evidence-dashboard/data/examples/versions-dsh-official.json).
+
 ## Relationship to the Official Project
 
 This repository is built on [deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness)

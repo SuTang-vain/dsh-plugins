@@ -21,6 +21,19 @@ DSH 插件套件的归档仪表盘。Host 半部分通过包私有 RPC 提供数
 | Rejected options | `data/attention-conflict-matrix-v2.json` | 曾考虑后被否决的选项及原因 |
 | Versions | `data/versions.json` + `CHANGELOG.md` | 仓库发布历史的 git 树 + changelog 时间线 |
 
+### Example datasets / 示例数据集
+
+`data/examples/versions-dsh-official.json` shows the same version-tree schema
+fed with a **third-party project's real release history**: the six npm
+publishes of `@deepseek-ai/dsh` (registry.npmjs.org, all release candidates,
+linearized). Drop your own `versions.json` next to it and the dashboard
+renders your project the same way — the UI is fully data-driven.
+
+`data/examples/versions-dsh-official.json` 用**第三方项目的真实发布历史**演示
+同一份版本树 schema：`@deepseek-ai/dsh` 在 npm 的六次发布（均为 rc，
+线性化排列）。把你的 `versions.json` 放在旁边，仪表盘即可同样渲染你的
+项目——UI 完全由数据驱动。
+
 ## Install / 安装
 
 ### Official bundle install (recommended) / 官方组合包安装（推荐）

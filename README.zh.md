@@ -78,6 +78,21 @@ dsh web --profile demo             # 打开 设置 → DSH Evidence
 | 各版本变更记录 | [`CHANGELOG.md`](CHANGELOG.md) |
 | 在仪表盘中查看版本树 | Versions 页（v1.0 → v1.6.2） |
 
+## 效用证据 / Evidence
+
+用数据说话，而非承诺——三件套各自可验证的效用：
+
+- **dsh-plugin-kit**：在三个第三方仓库、三种不同分发形态（npm bundle /
+  官方 `.dsh-plugin` / profile 片段）上 14/15 项检查通过；同时在本仓库
+  自己的 CI 中运行 82 项检查。见 [`docs/kit-field-test.md`](docs/kit-field-test.md)。
+- **dsh-prior-probe**：随包附带一份由**实际评分代码**生成的确定性离线
+  演示（[`data/example-score-run.json`](plugins/prior-probe/data/example-score-run.json)，
+  5/8 计分、G=0.8、低方向告警可见）；真实端点实测用 `prior_probe_run`
+  并传入你自己的凭据。
+- **dsh-evidence-dashboard**：渲染本仓库自身的发布历史；同一 schema 还在
+  第三方项目的真实数据上做了演示——`@deepseek-ai/dsh` 的六次 npm 发布
+  （[`data/examples/versions-dsh-official.json`](plugins/evidence-dashboard/data/examples/versions-dsh-official.json)）。
+
 ## 与官方项目的关系
 
 本仓库构建于 [deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness)

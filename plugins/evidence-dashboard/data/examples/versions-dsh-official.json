@@ -1,0 +1,73 @@
+{
+  "schema_version": "version-graph-v1",
+  "updated_at": "2026-08-16",
+  "provenance": "Example dataset, not shipped by the official project: linearized from the public npm version history of @deepseek-ai/dsh (registry.npmjs.org). All nodes are release candidates, so the graph is a straight line; add merge nodes to render fork/merge arcs.",
+  "branches": [
+    {
+      "id": "official-dsh",
+      "label": "@deepseek-ai/dsh · npm publish history (example)",
+      "track": "npm registry timeline",
+      "head": "v0.1.0-rc.6",
+      "nodes": [
+        {
+          "id": "v0.0.1-rc.1",
+          "parents": [],
+          "label": "0.0.1-rc.1",
+          "kind": "initial",
+          "promoted_at": "2026-08-10",
+          "summary": "npm publish of @deepseek-ai/dsh 0.0.1-rc.1 (2026-08-10)"
+        },
+        {
+          "id": "v0.0.1-rc.2",
+          "parents": [
+            "v0.0.1-rc.1"
+          ],
+          "label": "0.0.1-rc.2",
+          "kind": "prerelease",
+          "promoted_at": "2026-08-11",
+          "summary": "npm publish of @deepseek-ai/dsh 0.0.1-rc.2 (2026-08-11)"
+        },
+        {
+          "id": "v0.0.1-rc.5",
+          "parents": [
+            "v0.0.1-rc.2"
+          ],
+          "label": "0.0.1-rc.5",
+          "kind": "prerelease",
+          "promoted_at": "2026-08-12",
+          "summary": "npm publish of @deepseek-ai/dsh 0.0.1-rc.5 (2026-08-12)"
+        },
+        {
+          "id": "v0.1.0-rc.2",
+          "parents": [
+            "v0.0.1-rc.5"
+          ],
+          "label": "0.1.0-rc.2",
+          "kind": "prerelease",
+          "promoted_at": "2026-08-13",
+          "summary": "npm publish of @deepseek-ai/dsh 0.1.0-rc.2 (2026-08-13)"
+        },
+        {
+          "id": "v0.1.0-rc.3",
+          "parents": [
+            "v0.1.0-rc.2"
+          ],
+          "label": "0.1.0-rc.3",
+          "kind": "prerelease",
+          "promoted_at": "2026-08-13",
+          "summary": "npm publish of @deepseek-ai/dsh 0.1.0-rc.3 (2026-08-13)"
+        },
+        {
+          "id": "v0.1.0-rc.6",
+          "parents": [
+            "v0.1.0-rc.3"
+          ],
+          "label": "0.1.0-rc.6",
+          "kind": "prerelease",
+          "promoted_at": "2026-08-13",
+          "summary": "npm publish of @deepseek-ai/dsh 0.1.0-rc.6 (2026-08-13)"
+        }
+      ]
+    }
+  ]
+}

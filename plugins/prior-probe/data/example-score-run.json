@@ -1,0 +1,56 @@
+{
+  "example": "offline-demo-v1",
+  "note": "Deterministic demo output produced by the shipped scoring code (no model calls). Illustrates the tool's output shape; example responses are synthetic.",
+  "battery": "dsh-v1",
+  "frozen_at": "2026-08-14",
+  "stale_after": "2026-11-14",
+  "scored": "5/8",
+  "G": 0.8,
+  "per_probe": [
+    {
+      "id": "editing-realm-group",
+      "pass": null,
+      "note": "no response supplied"
+    },
+    {
+      "id": "editing-provider-value",
+      "pass": 1,
+      "flag": "above expected (prior-covered?)",
+      "sample": "Set the provider field to spawn."
+    },
+    {
+      "id": "headless-eval-pin",
+      "pass": 1,
+      "flag": "above expected (prior-covered?)",
+      "sample": "The pin is eval-pin-7f3a exactly."
+    },
+    {
+      "id": "headless-models",
+      "pass": null,
+      "note": "no response supplied"
+    },
+    {
+      "id": "wcag-tier-alt",
+      "pass": 0,
+      "flag": null,
+      "sample": "I would classify that as Moderate, maybe Serious."
+    },
+    {
+      "id": "wcag-tier-title",
+      "pass": null,
+      "note": "no response supplied"
+    },
+    {
+      "id": "gfw-commit-type",
+      "pass": 1,
+      "flag": null,
+      "sample": "feat: add a new feature"
+    },
+    {
+      "id": "gfw-summary-header",
+      "pass": 1,
+      "flag": "above expected (prior-covered?)",
+      "sample": "THINGS I DIDN'T TOUCH"
+    }
+  ]
+}

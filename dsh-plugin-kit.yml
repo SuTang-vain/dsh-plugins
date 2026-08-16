@@ -61,10 +61,12 @@ verify:
   # --- datasets parse as JSON ---
   - json: plugins/prior-probe/data/prior-guessability-probes-v1.json
   - json: plugins/prior-probe/data/prior-guessability-probes-ts-mcp-v1.json
+  - json: plugins/prior-probe/data/example-score-run.json
   - json: plugins/evidence-dashboard/data/overview.json
   - json: plugins/evidence-dashboard/data/evidence-map-v2.json
   - json: plugins/evidence-dashboard/data/attention-conflict-matrix-v2.json
   - json: plugins/evidence-dashboard/data/versions.json
+  - json: plugins/evidence-dashboard/data/examples/versions-dsh-official.json
 
   # --- dataset counts ---
   - count:

@@ -103,3 +103,27 @@ Batteries are frozen before use: do not edit a pattern without a recorded
 reason — the tooling is only meaningful against the frozen regexes.
 
 电池冻结后使用：没有记录理由不要修改正则——工具只有针对冻结正则才有意义。
+
+## Example output / 示例输出
+
+`data/example-score-run.json` is a deterministic offline demo produced by the
+**shipped scoring code** (no model calls; the responses are synthetic). It
+shows the exact output shape of `prior_probe_score`:
+
+| Field | Demo value |
+|---|---|
+| battery / frozen_at / stale_after | `dsh-v1` / `2026-08-14` / `2026-11-14` |
+| scored | 5/8 |
+| G | 0.8 |
+| flags | 3 low-direction probes matched → flagged "above expected (prior-covered?)" |
+
+The demo input deliberately mixes matching and non-matching answers so both
+the pass logic and the low-direction flag logic are visible. For a live run
+against a real endpoint, call `prior_probe_run` with your own
+`base_url`/`model`/`api_key_file`.
+
+`data/example-score-run.json` 是确定性离线演示，由**随包发布的评分代码**生成
+（无模型调用；回答为合成样例），展示 `prior_probe_score` 的精确输出形态：
+`dsh-v1` 电池 5/8 计分、G=0.8，并演示了低方向探针命中时的
+"above expected (prior-covered?)" 告警。对真实端点做实测请用
+`prior_probe_run` 并传入你自己的 `base_url`/`model`/`api_key_file`。
