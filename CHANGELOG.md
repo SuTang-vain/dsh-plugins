@@ -18,6 +18,10 @@ All notable changes to the DSH plugin suite.
   tarball install + `--dump-config` and a simulated browser factory load.
 - repo now carries the `dsh-plugin` / `deepseek-harness` topics for ecosystem
   discoverability.
+- **published to npm**: `dsh-prior-probe@1.5.0` and
+  `dsh-evidence-dashboard@1.5.0` are live on the public registry — install
+  with `dsh plugin add dsh-prior-probe` / `dsh plugin add
+  dsh-evidence-dashboard`.
 
 ## v1.4 (2026-08-15)
 

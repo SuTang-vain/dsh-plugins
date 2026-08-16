@@ -43,7 +43,7 @@ dsh plugin --profile demo add github:SuTang-vain/dsh-plugins#path:plugins/eviden
 # 2. from a packed tarball
 dsh plugin --profile demo add ./dsh-evidence-dashboard-1.5.0.tgz
 
-# 3. from npm (once published)
+# 3. from npm
 dsh plugin --profile demo add dsh-evidence-dashboard
 ```
 

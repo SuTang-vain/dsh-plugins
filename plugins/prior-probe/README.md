@@ -57,7 +57,7 @@ dsh plugin --profile demo add github:SuTang-vain/dsh-plugins#path:plugins/prior-
 # 2. from a packed tarball (no network)
 dsh plugin --profile demo add ./dsh-prior-probe-1.5.0.tgz
 
-# 3. from npm (once published)
+# 3. from npm
 dsh plugin --profile demo add dsh-prior-probe
 ```
 
