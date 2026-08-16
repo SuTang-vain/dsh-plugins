@@ -48,6 +48,17 @@ against their `data/` originals, and spot-checks the grader regexes.
 校验所有插件源码（按 Cordis 函数体解析）、所有 JSON 数据集、冻结计数、内嵌
 探针电池与 `data/` 原件的字节一致性，并抽查评分正则。
 
+## Releasing / 发版
+
+Both plugins are published as DSH bundles on npm (`dsh-prior-probe`,
+`dsh-evidence-dashboard`). The full release checklist — version bump, verify,
+pack-check, changelog sync, tag, npm publish against the official registry —
+lives in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+两个插件均以 DSH 组合包形式发布在 npm（`dsh-prior-probe`、
+`dsh-evidence-dashboard`）。完整发版清单——版本号、自检、打包检查、changelog
+同步、tag、对官方源执行 npm publish——见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
 ## Versioning / 版本
 
 Releases are tagged on the `main` branch (see [CHANGELOG](CHANGELOG.md) and the
